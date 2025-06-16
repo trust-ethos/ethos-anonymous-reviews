@@ -1,0 +1,19 @@
+# Cursor Rules for Ethos Anonymous Reviews
+
+## Git Workflow
+- **ALWAYS** commit and push changes after making any code modifications
+- Use descriptive commit messages that explain what was changed and why
+- Format: `git add -A && git commit -m "descriptive message" && git push`
+- This ensures all work is backed up and version controlled
+
+## Code Style
+- In the web service, use emotion css instead of style. This looks like css={()} not css``
+- Everywhere, use the actual character like ' not &apos;
+- In the emporos service, use tailwind instead of style
+- Do not hallucinate. Do not make up library functions. Ask for files or documentation you need.
+
+## Fresh/Deno Specific
+- This is a Fresh framework project running on Deno
+- Use Preact components and signals for state management
+- Islands are client-side interactive components
+- Routes are server-side rendered pages 
