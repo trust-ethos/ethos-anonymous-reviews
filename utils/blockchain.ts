@@ -61,6 +61,7 @@ export interface ReviewData {
   description: string; // Detailed review description
   reviewerUsername: string; // X username of reviewer (for attestation)
   subjectXAccountId?: string; // X account ID of the person being reviewed (for attestation)
+  reviewerReputationLevel?: string; // Reputation level of the reviewer (for anonymous disclaimer)
 }
 
 export interface AttestationDetails {
@@ -86,10 +87,15 @@ export async function submitReview(reviewData: ReviewData): Promise<string> {
   // Create contract instance
   const contract = new ethers.Contract(config.contractAddress, REVIEW_CONTRACT_ABI, wallet);
   
+  // Prepare description with anonymous disclaimer
+  const reputationLevel = reviewData.reviewerReputationLevel || "Reputable";
+  const anonymousDisclaimer = `_This review was left anonymously by a ${reputationLevel} Ethos user via anon.ethos.network_\n\n`;
+  const fullDescription = anonymousDisclaimer + reviewData.description;
+  
   // Prepare metadata JSON
   const metadata = JSON.stringify({
-    description: reviewData.description,
-    Source: "ethos-anonymous-reviews"
+    description: fullDescription,
+    source: "ethos-anonymous-reviews"
   });
   
   // Prepare attestation details - use subject's X account ID for attestation

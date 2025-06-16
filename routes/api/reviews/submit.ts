@@ -223,19 +223,38 @@ export const handler: Handlers = {
         });
       }
 
-      // 11. Prepare review data for blockchain submission
+      // 11. Get reviewer's reputation level for anonymous disclaimer
+      const reputationResponse = await fetch(`${req.url.split('/api/')[0]}/api/auth/reputation`, {
+        headers: {
+          'cookie': req.headers.get('cookie') || ''
+        }
+      });
+      
+      let reviewerReputationLevel = "Reputable"; // Default fallback
+      if (reputationResponse.ok) {
+        const reputationData = await reputationResponse.json();
+        if (reputationData.reputation?.level) {
+          // Capitalize first letter for display
+          reviewerReputationLevel = reputationData.reputation.level.charAt(0).toUpperCase() + 
+                                   reputationData.reputation.level.slice(1);
+        }
+      }
+
+      // 12. Prepare review data for blockchain submission
       const reviewData: ReviewData = {
         score: sentimentToScore(body.sentiment),
         subjectAddress: "0x0000000000000000000000000000000000000000", // Zero address - using attestation instead
         comment: body.title,
         description: body.description,
         reviewerUsername: session.user.username,
-        subjectXAccountId: xAccountId // Add X account ID for attestation
+        subjectXAccountId: xAccountId, // Add X account ID for attestation
+        reviewerReputationLevel: reviewerReputationLevel // Add reputation level for anonymous disclaimer
       };
 
       console.log("🔗 Submitting review to blockchain with data:", {
         reviewer: session.user.username,
         reviewerXId: session.user.id,
+        reviewerReputationLevel: reviewerReputationLevel,
         subject: body.profileUsername,
         subjectXAccountId: xAccountId,
         score: reviewData.score,
@@ -248,7 +267,7 @@ export const handler: Handlers = {
         securityChecks: "✅ All passed"
       });
 
-      // 12. Submit to blockchain
+      // 13. Submit to blockchain
       const txHash = await submitReview(reviewData);
 
       console.log("✅ Secure review submitted successfully:", txHash);
