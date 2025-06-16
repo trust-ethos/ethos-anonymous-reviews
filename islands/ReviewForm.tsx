@@ -79,8 +79,24 @@ export default function ReviewForm() {
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
     
-    if (!selectedProfile.value || !reviewTitle.value.trim() || !reviewDescription.value.trim() || !sentiment.value) {
-      alert("Please fill in all fields before submitting.");
+    // Enhanced validation with specific error messages
+    if (!selectedProfile.value) {
+      alert("Please search for and select a profile to review.");
+      return;
+    }
+    
+    if (!reviewTitle.value.trim()) {
+      alert("Please enter a review title.");
+      return;
+    }
+    
+    if (!reviewDescription.value.trim()) {
+      alert("Please enter a review description.");
+      return;
+    }
+    
+    if (!sentiment.value) {
+      alert("Please select a review type (Negative, Neutral, or Positive).");
       return;
     }
 
@@ -230,7 +246,15 @@ export default function ReviewForm() {
               
               <button
                 type="button"
-                onClick={() => submitSuccess.value = null}
+                onClick={() => {
+                  // Clear success state
+                  submitSuccess.value = null;
+                  // Clear all form fields to prevent accidental resubmission
+                  selectedProfile.value = null;
+                  reviewTitle.value = "";
+                  reviewDescription.value = "";
+                  sentiment.value = "";
+                }}
                 class="mt-4 text-sm text-green-400 hover:text-green-300 underline"
               >
                 Submit Another Review
