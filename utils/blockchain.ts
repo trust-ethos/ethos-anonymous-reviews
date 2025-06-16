@@ -89,8 +89,7 @@ export async function submitReview(reviewData: ReviewData): Promise<string> {
   // Prepare metadata JSON
   const metadata = JSON.stringify({
     description: reviewData.description,
-    platform: "ethos-anonymous-reviews",
-    timestamp: new Date().toISOString()
+    Source: "ethos-anonymous-reviews"
   });
   
   // Prepare attestation details - use subject's X account ID for attestation
@@ -149,12 +148,12 @@ export function isValidEthereumAddress(address: string): boolean {
 export function sentimentToScore(sentiment: "negative" | "neutral" | "positive"): number {
   switch (sentiment) {
     case "negative":
-      return 2; // Low score for negative reviews
+      return 0; // 0 for negative reviews
     case "neutral":
-      return 3; // Middle score for neutral reviews
+      return 1; // 1 for neutral reviews
     case "positive":
-      return 4; // High score for positive reviews
+      return 2; // 2 for positive reviews
     default:
-      return 3;
+      return 1;
   }
 } 
