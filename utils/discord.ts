@@ -168,9 +168,9 @@ export async function testDiscordWebhook(): Promise<boolean> {
   const testData: ReviewNotificationData = {
     sentiment: "positive",
     title: "Test Review Notification",
-    description: "This is a test notification to verify Discord webhook configuration. The profile link above should unfurl to show a nice card preview of the Ethos profile.",
+    description: "This is a test notification to verify Discord webhook configuration. The profile link above should unfurl to show a nice card preview of the reviewed person's Ethos profile.",
     reviewerReputationLevel: "reputable",
-    targetUsername: "kairosagent",
+    targetUsername: "testuser", // This would be the person being reviewed (the target)
     transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
     reviewId: "123"
   };

@@ -76,7 +76,7 @@ Here's what a Discord notification looks like:
 
 ```
 📋 New Anonymous Review for: https://app.ethos.network/profile/x/username
-[Discord will show a rich card preview of the Ethos profile here]
+[Discord will show a rich card preview of the REVIEWED PERSON'S Ethos profile here]
 
 🟢 New Positive Anonymous Review
 A reputable user left an anonymous review for @username
@@ -90,9 +90,12 @@ Review Description: Had an excellent experience working with this person on a De
 🔗 View on BaseScan | 🔗 View on Ethos
 ```
 
+**Important:** The profile link and preview shows the **person being reviewed** (the target), not the reviewer (who remains anonymous).
+
 **Features:**
-- 🎨 **Rich Profile Preview**: Discord automatically unfurls the Ethos profile link to show a card with the user's avatar, name, and description
-- 🎯 **Prominent Profile Link**: The main content includes the profile URL for Discord's auto-preview feature
+- 🎨 **Rich Profile Preview**: Discord automatically unfurls the reviewed person's Ethos profile link to show a card with their avatar, name, and description
+- 🎯 **Prominent Profile Link**: The main content includes the target's profile URL for Discord's auto-preview feature
+- 🔒 **Anonymity Preserved**: Only the reviewed person's profile is shown, reviewer remains completely anonymous
 
 **Color coding:**
 - 🟢 **Green**: Positive reviews
