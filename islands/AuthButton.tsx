@@ -16,10 +16,10 @@ function usePrivySafe() {
     
     const loadPrivy = async () => {
       try {
-        const module = await import("@privy-io/react-auth");
+        // Try to load Privy from ESM
+        const module = await import("https://esm.sh/@privy-io/react-auth@1.88.4");
         
         // Set up a way to access Privy state
-        // This is a workaround since we can't use hooks directly in islands
         const checkPrivyState = () => {
           if (!mounted) return;
           
