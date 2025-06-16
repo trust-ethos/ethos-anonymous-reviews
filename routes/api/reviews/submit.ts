@@ -233,10 +233,22 @@ export const handler: Handlers = {
       let reviewerReputationLevel = "reputable"; // Default fallback
       if (reputationResponse.ok) {
         const reputationData = await reputationResponse.json();
+        console.log("📊 Reputation data for disclaimer:", {
+          authenticated: reputationData.authenticated,
+          hasReputation: !!reputationData.reputation,
+          reputationLevel: reputationData.reputation?.level,
+          score: reputationData.reputation?.score
+        });
+        
         if (reputationData.reputation?.level) {
           // Use lowercase for display
           reviewerReputationLevel = reputationData.reputation.level.toLowerCase();
+          console.log("✅ Using reputation level for disclaimer:", reviewerReputationLevel);
+        } else {
+          console.log("⚠️ No reputation level found, using default:", reviewerReputationLevel);
         }
+      } else {
+        console.log("❌ Failed to fetch reputation data for disclaimer");
       }
 
       // 12. Prepare review data for blockchain submission

@@ -107,6 +107,12 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
   
   // Prepare description with anonymous disclaimer
   const reputationLevel = reviewData.reviewerReputationLevel || "reputable";
+  console.log("🏷️ Creating anonymous disclaimer with reputation level:", {
+    provided: reviewData.reviewerReputationLevel,
+    fallback: "reputable",
+    final: reputationLevel,
+    lowercase: reputationLevel.toLowerCase()
+  });
   const anonymousDisclaimer = `_This review was left anonymously by a **${reputationLevel.toLowerCase()}** Ethos user via anon.ethos.network_\n\n`;
   const fullDescription = anonymousDisclaimer + reviewData.description;
   
