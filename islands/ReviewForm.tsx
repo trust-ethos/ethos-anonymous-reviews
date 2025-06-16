@@ -74,13 +74,35 @@ export default function ReviewForm() {
     isSubmitting.value = true;
     
     try {
-      // TODO: Submit review to backend
-      console.log("Submitting review:", {
+      console.log("Submitting review to blockchain:", {
         profile: selectedProfile.value,
         title: reviewTitle.value,
         description: reviewDescription.value,
         sentiment: sentiment.value,
       });
+
+      const response = await fetch('/api/reviews/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          profileId: selectedProfile.value.id,
+          profileUsername: selectedProfile.value.username,
+          profileAddress: selectedProfile.value.ethereumAddress, // If available from Ethos
+          title: reviewTitle.value,
+          description: reviewDescription.value,
+          sentiment: sentiment.value,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit review');
+      }
+
+      console.log("Review submitted successfully:", result.transactionHash);
       
       // Reset form
       selectedProfile.value = null;
@@ -88,10 +110,11 @@ export default function ReviewForm() {
       reviewDescription.value = "";
       sentiment.value = "";
       
-      alert("Review submitted successfully!");
+      alert(`Review submitted successfully to blockchain!\nTransaction: ${result.transactionHash}`);
     } catch (error) {
       console.error("Error submitting review:", error);
-      alert("Failed to submit review. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Failed to submit review";
+      alert(`Failed to submit review: ${errorMessage}`);
     } finally {
       isSubmitting.value = false;
     }

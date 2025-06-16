@@ -7,6 +7,7 @@ import * as $_app from "./routes/_app.tsx";
 import * as $api_auth_me from "./routes/api/auth/me.ts";
 import * as $api_auth_reputation from "./routes/api/auth/reputation.ts";
 import * as $api_joke from "./routes/api/joke.ts";
+import * as $api_reviews_submit from "./routes/api/reviews/submit.ts";
 import * as $auth_logout from "./routes/auth/logout.ts";
 import * as $auth_twitter from "./routes/auth/twitter.ts";
 import * as $auth_twitter_callback from "./routes/auth/twitter/callback.ts";
@@ -25,6 +26,7 @@ const manifest = {
     "./routes/api/auth/me.ts": $api_auth_me,
     "./routes/api/auth/reputation.ts": $api_auth_reputation,
     "./routes/api/joke.ts": $api_joke,
+    "./routes/api/reviews/submit.ts": $api_reviews_submit,
     "./routes/auth/logout.ts": $auth_logout,
     "./routes/auth/twitter.ts": $auth_twitter,
     "./routes/auth/twitter/callback.ts": $auth_twitter_callback,
