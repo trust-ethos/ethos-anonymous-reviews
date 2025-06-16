@@ -15,7 +15,7 @@ export const handler: Handlers = {
     const state = crypto.randomUUID();
     
     // Determine if we're in production (HTTPS) or development (HTTP)
-    const isProduction = url.protocol === "https:";
+    const isProduction = url.hostname !== "localhost" && url.hostname !== "127.0.0.1";
     const cookieFlags = isProduction ? "HttpOnly; Secure; SameSite=Lax" : "HttpOnly; SameSite=Lax";
     
     console.log("🍪 Setting state cookie...", { state, isProduction, cookieFlags });
