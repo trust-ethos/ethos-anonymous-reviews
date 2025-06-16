@@ -88,6 +88,16 @@ export default function ReviewForm() {
     isSubmitting.value = true;
     
     try {
+      console.log("Getting CSRF token...");
+      
+      // Get CSRF token first
+      const csrfResponse = await fetch("/api/auth/csrf");
+      if (!csrfResponse.ok) {
+        throw new Error("Failed to get CSRF token");
+      }
+      const csrfData = await csrfResponse.json();
+      const csrfToken = csrfData.csrfToken;
+      
       console.log("Submitting review to blockchain:", {
         profile: selectedProfile.value,
         title: reviewTitle.value,
@@ -106,8 +116,8 @@ export default function ReviewForm() {
           title: reviewTitle.value,
           description: reviewDescription.value,
           sentiment: sentiment.value,
-          csrfToken: "temporary_token", // TODO: Implement proper CSRF protection
-          requestNonce: Date.now().toString(), // TODO: Implement proper nonce system
+          csrfToken: csrfToken,
+          requestNonce: crypto.randomUUID(), // Generate proper unique nonce
         }),
       });
 
