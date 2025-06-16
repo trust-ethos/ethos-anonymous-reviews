@@ -18,7 +18,6 @@ import * as $AuthButton from "./islands/AuthButton.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $EthosProfileSearch from "./islands/EthosProfileSearch.tsx";
 import * as $ReviewForm from "./islands/ReviewForm.tsx";
-import * as $Toast from "./islands/Toast.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -41,7 +40,6 @@ const manifest = {
     "./islands/Counter.tsx": $Counter,
     "./islands/EthosProfileSearch.tsx": $EthosProfileSearch,
     "./islands/ReviewForm.tsx": $ReviewForm,
-    "./islands/Toast.tsx": $Toast,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

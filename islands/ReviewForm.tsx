@@ -1,7 +1,6 @@
 import { useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import EthosProfileSearch from "./EthosProfileSearch.tsx";
-import { addToast } from "./Toast.tsx";
 
 interface EthosProfile {
   id: number;
@@ -68,11 +67,7 @@ export default function ReviewForm() {
     e.preventDefault();
     
     if (!selectedProfile.value || !reviewTitle.value.trim() || !reviewDescription.value.trim() || !sentiment.value) {
-      addToast({
-        type: "error",
-        title: "Missing Information",
-        message: "Please fill in all fields before submitting."
-      });
+      alert("Please fill in all fields before submitting.");
       return;
     }
 
@@ -83,92 +78,51 @@ export default function ReviewForm() {
         profile: selectedProfile.value,
         title: reviewTitle.value,
         description: reviewDescription.value,
-        sentiment: sentiment.value,
+        sentiment: sentiment.value
       });
 
-      // First, get CSRF token
-      console.log("🔄 Fetching CSRF token...");
-      const csrfResponse = await fetch("/api/auth/csrf", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (!csrfResponse.ok) {
-        throw new Error("Failed to get CSRF token");
-      }
-
-      const csrfData = await csrfResponse.json();
-      console.log("✅ CSRF token received");
-
-      // Generate a unique nonce for this request
-      const requestNonce = crypto.randomUUID();
-
-      console.log("🔄 Submitting review with security tokens...");
-      const response = await fetch('/api/reviews/submit', {
-        method: 'POST',
+      const response = await fetch("/api/reviews/submit", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
         body: JSON.stringify({
-          profileId: selectedProfile.value.id,
-          profileUsername: selectedProfile.value.username,
-          profileAddress: selectedProfile.value.ethereumAddress, // If available from Ethos
-          title: reviewTitle.value,
-          description: reviewDescription.value,
+          profileAddress: selectedProfile.value.primaryAddress,
+          reviewTitle: reviewTitle.value,
+          reviewDescription: reviewDescription.value,
           sentiment: sentiment.value,
-          csrfToken: csrfData.csrfToken,
-          requestNonce: requestNonce,
         }),
       });
 
       const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to submit review');
-      }
-
-      console.log("Review submitted successfully:", result.transactionHash);
-      
-      // Reset form
-      selectedProfile.value = null;
-      reviewTitle.value = "";
-      reviewDescription.value = "";
-      sentiment.value = "";
-      
-      // Show success toast with transaction hash and potential review link
-      const actions = [
-        {
-          label: "View Transaction",
-          href: `https://basescan.org/tx/${result.transactionHash}`
+      if (response.ok) {
+        console.log("✅ Review submitted successfully:", result);
+        
+        // Create success message with links
+        let message = "Review submitted successfully to blockchain!";
+        if (result.transactionHash) {
+          message += `\n\nTransaction: ${result.transactionHash}`;
+          message += `\nView on BaseScan: https://basescan.org/tx/${result.transactionHash}`;
         }
-      ];
-
-      // If we have a review ID from the response, add a link to view on Ethos
-      if (result.reviewId) {
-        actions.unshift({
-          label: "View on Ethos",
-          href: `https://app.ethos.network/activity/review/${result.reviewId}`
-        });
+        if (result.reviewId) {
+          message += `\nView Review on Ethos: https://app.ethos.network/activity/review/${result.reviewId}`;
+        }
+        
+        alert(message);
+        
+        // Reset form
+        selectedProfile.value = null;
+        reviewTitle.value = "";
+        reviewDescription.value = "";
+        sentiment.value = "";
+      } else {
+        console.error("❌ Review submission failed:", result);
+        alert(`Failed to submit review: ${result.error || "Unknown error"}`);
       }
-
-      addToast({
-        type: "success",
-        title: "Review Submitted Successfully!",
-        message: `Your anonymous review has been submitted to the blockchain. Transaction: ${result.transactionHash.slice(0, 10)}...`,
-        duration: 10000, // Show for 10 seconds
-        actions
-      });
     } catch (error) {
-      console.error("Error submitting review:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to submit review";
-      
-      addToast({
-        type: "error",
-        title: "Submission Failed",
-        message: errorMessage,
-        duration: 8000
-      });
+      console.error("❌ Review submission error:", error);
+      alert(`Error submitting review: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       isSubmitting.value = false;
     }
