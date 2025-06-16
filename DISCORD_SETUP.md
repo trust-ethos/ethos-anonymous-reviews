@@ -75,10 +75,12 @@ ENABLE_DISCORD_NOTIFICATIONS=false
 Here's what a Discord notification looks like:
 
 ```
-🟢 New Positive Anonymous Review
-A reputable user left an anonymous review
+📋 New Anonymous Review for: https://app.ethos.network/profile/x/username
+[Discord will show a rich card preview of the Ethos profile here]
 
-Target Profile: @username
+🟢 New Positive Anonymous Review
+A reputable user left an anonymous review for @username
+
 Reviewer Level: reputable  
 Sentiment: Positive
 
@@ -87,6 +89,10 @@ Review Description: Had an excellent experience working with this person on a De
 
 🔗 View on BaseScan | 🔗 View on Ethos
 ```
+
+**Features:**
+- 🎨 **Rich Profile Preview**: Discord automatically unfurls the Ethos profile link to show a card with the user's avatar, name, and description
+- 🎯 **Prominent Profile Link**: The main content includes the profile URL for Discord's auto-preview feature
 
 **Color coding:**
 - 🟢 **Green**: Positive reviews

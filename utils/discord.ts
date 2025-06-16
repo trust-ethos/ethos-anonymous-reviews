@@ -53,19 +53,13 @@ function isDiscordNotificationsEnabled(): boolean {
 // Create Discord embed for review notification
 function createReviewEmbed(data: ReviewNotificationData): DiscordEmbed {
   const sentimentText = data.sentiment.charAt(0).toUpperCase() + data.sentiment.slice(1);
-  const profileUrl = `https://app.ethos.network/profile/x/${data.targetUsername}`;
   const basescanUrl = `https://basescan.org/tx/${data.transactionHash}`;
   
   const embed: DiscordEmbed = {
     title: `New ${sentimentText} Anonymous Review`,
-    description: `A **${data.reviewerReputationLevel}** user left an anonymous review`,
+    description: `A **${data.reviewerReputationLevel}** user left an anonymous review for **@${data.targetUsername}**`,
     color: SENTIMENT_COLORS[data.sentiment],
     fields: [
-      {
-        name: "Target Profile",
-        value: `[@${data.targetUsername}](${profileUrl})`,
-        inline: true
-      },
       {
         name: "Reviewer Level",
         value: data.reviewerReputationLevel,
@@ -126,7 +120,11 @@ export async function sendReviewNotification(data: ReviewNotificationData): Prom
 
   try {
     const embed = createReviewEmbed(data);
+    const profileUrl = `https://app.ethos.network/profile/x/${data.targetUsername}`;
+    
+    // Include profile link in main content for Discord to unfurl/preview
     const payload: DiscordWebhookPayload = {
+      content: `📋 **New Anonymous Review for:** ${profileUrl}`,
       embeds: [embed]
     };
 
@@ -134,7 +132,8 @@ export async function sendReviewNotification(data: ReviewNotificationData): Prom
       sentiment: data.sentiment,
       target: data.targetUsername,
       reviewerLevel: data.reviewerReputationLevel,
-      hasReviewId: !!data.reviewId
+      hasReviewId: !!data.reviewId,
+      profileUrl: profileUrl
     });
 
     const response = await fetch(webhookUrl, {
@@ -169,9 +168,9 @@ export async function testDiscordWebhook(): Promise<boolean> {
   const testData: ReviewNotificationData = {
     sentiment: "positive",
     title: "Test Review Notification",
-    description: "This is a test notification to verify Discord webhook configuration.",
+    description: "This is a test notification to verify Discord webhook configuration. The profile link above should unfurl to show a nice card preview of the Ethos profile.",
     reviewerReputationLevel: "reputable",
-    targetUsername: "testuser",
+    targetUsername: "kairosagent",
     transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
     reviewId: "123"
   };
