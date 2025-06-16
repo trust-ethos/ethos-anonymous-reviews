@@ -32,6 +32,74 @@ interface SubmitReviewRequest {
   requestNonce: string; // Prevent replay attacks
 }
 
+interface EthosUser {
+  id: number;
+  profileId: number;
+  displayName: string;
+  username: string;
+  avatarUrl?: string;
+  score: number;
+  description?: string;
+  status: string;
+  userkeys: string[];
+  xpTotal: number;
+  xpStreakDays: number;
+  stats: any;
+}
+
+type EthosUserResponse = EthosUser[];
+
+// Function to resolve Ethereum address from Ethos API
+async function resolveEthereumAddress(username: string): Promise<string | null> {
+  try {
+    console.log("🔍 Resolving Ethereum address for:", username);
+    
+    const requestPayload = {
+      accountIdsOrUsernames: [username]
+    };
+    
+    const ethosResponse = await fetch('https://api.ethos.network/api/v2/users/by/x', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestPayload)
+    });
+    
+    if (!ethosResponse.ok) {
+      console.log("❌ Ethos API request failed:", ethosResponse.status);
+      return null;
+    }
+
+    const ethosData: EthosUserResponse = await ethosResponse.json();
+    
+    if (!ethosData || ethosData.length === 0) {
+      console.log("❌ No Ethos profile found for:", username);
+      return null;
+    }
+
+    const userProfile = ethosData[0];
+    
+    // Check if user has any Ethereum addresses in their userkeys
+    const ethereumKeys = userProfile.userkeys?.filter(key => 
+      key.startsWith('0x') && key.length === 42
+    );
+    
+    if (ethereumKeys && ethereumKeys.length > 0) {
+      const address = ethereumKeys[0]; // Use the first Ethereum address
+      console.log("✅ Found Ethereum address for", username, ":", address);
+      return address;
+    }
+    
+    console.log("❌ No Ethereum address found in userkeys for:", username);
+    return null;
+  } catch (error) {
+    console.error("❌ Error resolving Ethereum address:", error);
+    return null;
+  }
+}
+
 export const handler: Handlers = {
   async POST(req) {
     console.log("🔄 Processing secure review submission...");
@@ -146,10 +214,20 @@ export const handler: Handlers = {
       let subjectAddress = body.profileAddress;
       
       if (!subjectAddress) {
-        // Try to get address from Ethos API or use a placeholder
-        // For now, we'll use a placeholder address - this should be improved
-        console.log("⚠️ No Ethereum address provided, using placeholder");
-        subjectAddress = "0x0000000000000000000000000000000000000001"; // Placeholder
+        // Try to resolve address from Ethos API
+        console.log("🔍 No Ethereum address provided, resolving from Ethos API...");
+        const resolvedAddress = await resolveEthereumAddress(body.profileUsername);
+        
+        if (!resolvedAddress) {
+          return new Response(JSON.stringify({ 
+            error: `No Ethereum address found for X account @${body.profileUsername}. The user needs to connect their Ethereum wallet to their Ethos profile to receive reviews.` 
+          }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        
+        subjectAddress = resolvedAddress;
       }
 
       if (!isValidEthereumAddress(subjectAddress)) {
