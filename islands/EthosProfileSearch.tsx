@@ -1,5 +1,6 @@
 import { useSignal } from "@preact/signals";
 import { Signal } from "@preact/signals";
+import { useEffect } from "preact/hooks";
 
 interface EthosProfile {
   id: number;
@@ -21,6 +22,7 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
   const searchResults = useSignal<EthosProfile[]>([]);
   const isSearching = useSignal(false);
   const showResults = useSignal(false);
+  const debounceTimeout = useSignal<number | null>(null);
 
   const searchProfiles = async (query: string) => {
     if (!query.trim()) {
@@ -62,10 +64,30 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
     }
   };
 
+  const debouncedSearch = (query: string) => {
+    // Clear existing timeout
+    if (debounceTimeout.value) {
+      clearTimeout(debounceTimeout.value);
+    }
+
+    // If query is empty, clear results immediately
+    if (!query.trim()) {
+      searchResults.value = [];
+      showResults.value = false;
+      isSearching.value = false;
+      return;
+    }
+
+    // Set new timeout for 300ms delay
+    debounceTimeout.value = setTimeout(() => {
+      searchProfiles(query);
+    }, 300);
+  };
+
   const handleInputChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     searchQuery.value = target.value;
-    searchProfiles(target.value);
+    debouncedSearch(target.value);
   };
 
   const handleProfileSelect = (profile: EthosProfile) => {
@@ -73,7 +95,22 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
     searchQuery.value = "";
     searchResults.value = [];
     showResults.value = false;
+    
+    // Clear any pending search
+    if (debounceTimeout.value) {
+      clearTimeout(debounceTimeout.value);
+      debounceTimeout.value = null;
+    }
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeout.value) {
+        clearTimeout(debounceTimeout.value);
+      }
+    };
+  }, []);
 
   const getScoreColor = (score: number) => {
     if (score < 800) return "text-red-400";
