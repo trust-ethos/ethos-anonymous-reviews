@@ -142,7 +142,7 @@ export default function ReviewForm() {
             </div>
           </div>
           <div class="text-xs text-neutral-400 mt-2">
-            We will save this as an anonymous {reputationData.value.reputation?.level || "user"} profile. We will not reveal any information about you except your general score.
+            Your review will be saved anonymously. Only the score level you are in will be revealed.
           </div>
         </div>
       )}
