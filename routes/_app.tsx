@@ -10,7 +10,7 @@ export default function App({ Component }: PageProps) {
         <title>Ethos Anonymous Reviews</title>
         <link rel="stylesheet" href="/styles.css" />
       </head>
-      <body>
+      <body class="bg-neutral-950 text-white min-h-screen">
         <PrivyProvider>
           <Component />
         </PrivyProvider>
