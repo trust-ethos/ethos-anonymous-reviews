@@ -111,10 +111,22 @@ export default function ReviewForm() {
           <label class="block text-sm font-medium mb-2">
             You
           </label>
-          <div class="flex items-center gap-3 p-3 bg-neutral-800 border border-neutral-700 rounded-md">
-            <div class="w-10 h-10 rounded-full bg-neutral-600 flex items-center justify-center text-neutral-300">
+          <div class={`flex items-center gap-3 p-3 border border-neutral-700 rounded-md ${
+            reputationData.value.reputation?.level === 'exemplary' 
+              ? 'bg-green-900/20 border-green-700/50' 
+              : reputationData.value.reputation?.level === 'reputable'
+              ? 'bg-blue-900/20 border-blue-700/50'
+              : 'bg-neutral-800'
+          }`}>
+            <div class={`w-10 h-10 rounded-full flex items-center justify-center text-neutral-300 ${
+              reputationData.value.reputation?.level === 'exemplary' 
+                ? 'bg-green-800' 
+                : reputationData.value.reputation?.level === 'reputable'
+                ? 'bg-blue-800'
+                : 'bg-neutral-600'
+            }`}>
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.11 3.89 23 5 23H19C20.11 23 21 22.11 21 21V9M19 9H14V4H5V21H19V9Z"/>
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
               </svg>
             </div>
             <div class="flex-1">
@@ -123,22 +135,14 @@ export default function ReviewForm() {
               </div>
               <div class="text-xs text-neutral-400">
                 {reputationData.value.reputation ? 
-                  `Score: ${reputationData.value.reputation.score}` : 
+                  "Reputation verified" : 
                   "Reputation unknown"
                 }
               </div>
             </div>
-            {reputationData.value.reputation?.level && (
-              <div class={`px-2 py-1 rounded text-xs font-medium ${
-                reputationData.value.reputation.level === 'exemplary' 
-                  ? 'bg-green-900 text-green-300' 
-                  : reputationData.value.reputation.level === 'reputable'
-                  ? 'bg-blue-900 text-blue-300'
-                  : 'bg-neutral-700 text-neutral-300'
-              }`}>
-                {reputationData.value.reputation.level}
-              </div>
-            )}
+          </div>
+          <div class="text-xs text-neutral-400 mt-2">
+            We will save this as an anonymous {reputationData.value.reputation?.level || "user"} profile. We will not reveal any information about you except your general score.
           </div>
         </div>
       )}
