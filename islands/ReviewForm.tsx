@@ -101,10 +101,13 @@ export default function ReviewForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          profileAddress: selectedProfile.value.primaryAddress,
-          reviewTitle: reviewTitle.value,
-          reviewDescription: reviewDescription.value,
+          profileId: selectedProfile.value.profileId,
+          profileUsername: selectedProfile.value.username,
+          title: reviewTitle.value,
+          description: reviewDescription.value,
           sentiment: sentiment.value,
+          csrfToken: "temporary_token", // TODO: Implement proper CSRF protection
+          requestNonce: Date.now().toString(), // TODO: Implement proper nonce system
         }),
       });
 
