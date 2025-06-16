@@ -85,7 +85,7 @@ export const handler: Handlers = {
       
       console.log("✅ User data received:", { username: user.username, name: user.name });
 
-      // Create session cookie with user data
+      // Create secure session cookie with user data
       const sessionData = {
         user: {
           id: user.id,
@@ -97,15 +97,19 @@ export const handler: Handlers = {
         expiresAt: Date.now() + (tokenData.expires_in * 1000),
       };
 
+      // Import security utilities
+      const { createSecureSession } = await import("../../../utils/security.ts");
+      const secureSessionData = await createSecureSession(sessionData);
+
       // Determine if we're in production (HTTPS) or development (HTTP)
       console.log("🔍 URL details:", { hostname: url.hostname, protocol: url.protocol, href: url.href });
       // Force development mode for now to fix cookie issues
       const isProduction = false;
       const cookieFlags = isProduction ? "HttpOnly; Secure; SameSite=Lax" : "HttpOnly; SameSite=Lax";
 
-      console.log("🍪 Setting session cookie...", { isProduction, cookieFlags });
+      console.log("🍪 Setting secure session cookie...", { isProduction, cookieFlags });
 
-      const sessionCookie = `twitter_session=${btoa(JSON.stringify(sessionData))}; Path=/; ${cookieFlags}; Max-Age=${tokenData.expires_in}`;
+      const sessionCookie = `twitter_session=${secureSessionData}; Path=/; ${cookieFlags}; Max-Age=${tokenData.expires_in}`;
       const clearStateCookie = `twitter_oauth_state=; Path=/; ${cookieFlags}; Max-Age=0`;
       
       console.log("🍪 Cookie strings:", { sessionCookie, clearStateCookie });
