@@ -10,7 +10,6 @@ export default function Home() {
         <div class="container mx-auto px-4 py-4">
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-3">
-              <h1 class="text-xl font-semibold">Ethos Anonymous Reviews</h1>
             </div>
             <AuthButton />
           </div>
@@ -26,8 +25,7 @@ export default function Home() {
               Ethos Anonymous Reviews
             </h1>
             <p class="text-xl text-neutral-400 max-w-2xl mx-auto">
-              Leave anonymous reviews for Ethos profiles. Your identity stays private, 
-              but your reputation matters.
+              Leave anonymous reviews on Ethos. Only for Reputable and higher Ethos profiles.
             </p>
           </div>
 
