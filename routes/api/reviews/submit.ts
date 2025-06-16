@@ -1,5 +1,5 @@
 import { Handlers } from "$fresh/server.ts";
-import { submitReview, sentimentToScore, isValidEthereumAddress, type ReviewData } from "../../../utils/blockchain.ts";
+import { submitReview, sentimentToScore, isValidEthereumAddress, type ReviewData, type ReviewSubmissionResult } from "../../../utils/blockchain.ts";
 import { 
   verifySecureSession, 
   checkRateLimit, 
@@ -268,13 +268,14 @@ export const handler: Handlers = {
       });
 
       // 13. Submit to blockchain
-      const txHash = await submitReview(reviewData);
+      const result: ReviewSubmissionResult = await submitReview(reviewData);
 
-      console.log("✅ Secure review submitted successfully:", txHash);
+      console.log("✅ Secure review submitted successfully:", result.transactionHash);
 
       return new Response(JSON.stringify({ 
         success: true, 
-        transactionHash: txHash,
+        transactionHash: result.transactionHash,
+        reviewId: result.reviewId,
         message: "Review submitted successfully to blockchain"
       }), {
         headers: { "Content-Type": "application/json" },

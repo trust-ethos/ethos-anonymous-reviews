@@ -8,7 +8,7 @@ export interface BlockchainConfig {
   chainId: number;
 }
 
-// Review contract ABI - only the addReview function we need
+// Review contract ABI - including events to parse review ID
 const REVIEW_CONTRACT_ABI = [
   {
     "inputs": [
@@ -31,6 +31,19 @@ const REVIEW_CONTRACT_ABI = [
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "reviewId", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "author", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "subject", "type": "address" },
+      { "indexed": false, "internalType": "uint8", "name": "score", "type": "uint8" },
+      { "indexed": false, "internalType": "string", "name": "comment", "type": "string" },
+      { "indexed": false, "internalType": "string", "name": "metadata", "type": "string" }
+    ],
+    "name": "ReviewAdded",
+    "type": "event"
   }
 ];
 
@@ -69,7 +82,12 @@ export interface AttestationDetails {
   service: string;
 }
 
-export async function submitReview(reviewData: ReviewData): Promise<string> {
+export interface ReviewSubmissionResult {
+  transactionHash: string;
+  reviewId?: number;
+}
+
+export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmissionResult> {
   const config = getBlockchainConfig();
   
   if (!config.privateKey) {
@@ -95,7 +113,7 @@ export async function submitReview(reviewData: ReviewData): Promise<string> {
   // Prepare metadata JSON
   const metadata = JSON.stringify({
     description: fullDescription,
-    source: "ethos-anonymous-reviews"
+    source: "anon.ethos.network"
   });
   
   // Prepare attestation details - use subject's X account ID for attestation
@@ -135,7 +153,37 @@ export async function submitReview(reviewData: ReviewData): Promise<string> {
     const receipt = await tx.wait();
     console.log("Transaction confirmed:", receipt.hash);
     
-    return receipt.hash;
+    // Parse events to extract review ID
+    let reviewId: number | undefined;
+    
+    try {
+      // Look for ReviewAdded event in the transaction receipt
+      const reviewAddedEvent = receipt.logs.find((log: any) => {
+        try {
+          const parsedLog = contract.interface.parseLog(log);
+          return parsedLog?.name === 'ReviewAdded';
+        } catch {
+          return false;
+        }
+      });
+      
+             if (reviewAddedEvent) {
+         const parsedEvent = contract.interface.parseLog(reviewAddedEvent);
+         if (parsedEvent) {
+           reviewId = parseInt(parsedEvent.args.reviewId.toString());
+           console.log("✅ Review ID extracted from event:", reviewId);
+         }
+       } else {
+        console.log("⚠️ No ReviewAdded event found in transaction receipt");
+      }
+    } catch (error) {
+      console.log("⚠️ Failed to parse review ID from events:", error);
+    }
+    
+    return {
+      transactionHash: receipt.hash,
+      reviewId
+    };
   } catch (error) {
     console.error("Blockchain submission error:", error);
     throw new Error(`Failed to submit review to blockchain: ${error.message}`);

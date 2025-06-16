@@ -1,6 +1,7 @@
 import { useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import EthosProfileSearch from "./EthosProfileSearch.tsx";
+import { addToast } from "./Toast.tsx";
 
 interface EthosProfile {
   id: number;
@@ -67,7 +68,11 @@ export default function ReviewForm() {
     e.preventDefault();
     
     if (!selectedProfile.value || !reviewTitle.value.trim() || !reviewDescription.value.trim() || !sentiment.value) {
-      alert("Please fill in all fields");
+      addToast({
+        type: "error",
+        title: "Missing Information",
+        message: "Please fill in all fields before submitting."
+      });
       return;
     }
 
@@ -131,11 +136,39 @@ export default function ReviewForm() {
       reviewDescription.value = "";
       sentiment.value = "";
       
-      alert(`Review submitted successfully to blockchain!\nTransaction: ${result.transactionHash}`);
+      // Show success toast with transaction hash and potential review link
+      const actions = [
+        {
+          label: "View Transaction",
+          href: `https://basescan.org/tx/${result.transactionHash}`
+        }
+      ];
+
+      // If we have a review ID from the response, add a link to view on Ethos
+      if (result.reviewId) {
+        actions.unshift({
+          label: "View on Ethos",
+          href: `https://app.ethos.network/activity/review/${result.reviewId}`
+        });
+      }
+
+      addToast({
+        type: "success",
+        title: "Review Submitted Successfully!",
+        message: `Your anonymous review has been submitted to the blockchain. Transaction: ${result.transactionHash.slice(0, 10)}...`,
+        duration: 10000, // Show for 10 seconds
+        actions
+      });
     } catch (error) {
       console.error("Error submitting review:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to submit review";
-      alert(`Failed to submit review: ${errorMessage}`);
+      
+      addToast({
+        type: "error",
+        title: "Submission Failed",
+        message: errorMessage,
+        duration: 8000
+      });
     } finally {
       isSubmitting.value = false;
     }
@@ -194,7 +227,7 @@ export default function ReviewForm() {
       {/* Profile Search */}
       <div>
         <label class="block text-sm font-medium mb-2">
-          Select X account
+          Search X account or ENS
         </label>
         <EthosProfileSearch 
           selectedProfile={selectedProfile}
