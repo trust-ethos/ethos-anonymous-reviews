@@ -3,8 +3,9 @@ import { useEffect, useState } from "preact/hooks";
 
 export default function AuthButton() {
   const [isClient, setIsClient] = useState(false);
+  const [privyHooks, setPrivyHooks] = useState<any>(null);
   
-  // Demo state
+  // Demo state for fallback
   const isConnected = useSignal(false);
   const mockUser = useSignal({
     username: "demo_user",
@@ -14,15 +15,40 @@ export default function AuthButton() {
 
   useEffect(() => {
     setIsClient(true);
+    
+    // Check if Privy hooks are available
+    const checkPrivyHooks = () => {
+      if (typeof window !== 'undefined' && (window as any).Privy) {
+        console.log("✅ Privy hooks available");
+        setPrivyHooks((window as any).Privy);
+      } else {
+        console.log("⚠️ Privy hooks not yet available, retrying...");
+        setTimeout(checkPrivyHooks, 100);
+      }
+    };
+
+    checkPrivyHooks();
   }, []);
 
   const handleConnect = () => {
-    if (isConnected.value) {
-      isConnected.value = false;
+    if (privyHooks && privyHooks.usePrivy) {
+      // Try to use real Privy authentication
+      try {
+        console.log("🔗 Attempting Privy authentication...");
+        // Note: In a real implementation, you'd need to call this within the Privy context
+        alert("Privy authentication will be implemented here!");
+      } catch (error) {
+        console.log("⚠️ Privy authentication failed, using demo mode");
+        isConnected.value = !isConnected.value;
+      }
     } else {
-      // For now, just use demo mode
-      alert("Demo mode: Twitter authentication will be added soon!");
-      isConnected.value = true;
+      // Demo mode fallback
+      if (isConnected.value) {
+        isConnected.value = false;
+      } else {
+        alert("Demo mode: Twitter authentication will be added soon!");
+        isConnected.value = true;
+      }
     }
   };
 
@@ -44,7 +70,9 @@ export default function AuthButton() {
           </div>
           <div class="text-sm">
             <div class="font-medium">@{mockUser.value.username}</div>
-            <div class="text-neutral-400 text-xs">{mockUser.value.name} (Demo)</div>
+            <div class="text-neutral-400 text-xs">
+              {mockUser.value.name} {privyHooks ? "(Privy Ready)" : "(Demo)"}
+            </div>
           </div>
         </div>
         <button
@@ -65,7 +93,7 @@ export default function AuthButton() {
       <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
       </svg>
-      Connect X
+      Connect X {privyHooks ? "(Privy Ready)" : ""}
     </button>
   );
 } 
