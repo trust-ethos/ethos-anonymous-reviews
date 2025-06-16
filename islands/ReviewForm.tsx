@@ -358,7 +358,7 @@ export default function ReviewForm() {
       {/* Review Description */}
       <div>
         <label class="block text-sm font-medium mb-2">
-          Review Description
+          Review description
         </label>
         <textarea
           value={reviewDescription.value}
@@ -404,7 +404,7 @@ export default function ReviewForm() {
           ? "Please login"
           : (reputationData.value?.authenticated && !canSubmit)
           ? "Must be reputable to submit"
-          : "Submit Anonymous Review"
+          : "Submit anon review"
         }
       </button>
 
