@@ -25,7 +25,7 @@ export default function Home() {
               Ethos Anonymous Reviews
             </h1>
             <p class="text-xl text-neutral-400 max-w-2xl mx-auto">
-              Leave anonymous reviews on Ethos for any X account or ENS name. <br /> Only for Reputable and higher Ethos profiles.
+              Leave anonymous reviews on Ethos for any X account or ENS name. <br /> Only reputable or higher Ethos profiles can use this functionality.
             </p>
           </div>
 
