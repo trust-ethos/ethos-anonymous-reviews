@@ -54,6 +54,17 @@ export const handler: Handlers = {
 
       console.log("✅ User authenticated, checking Ethos reputation for:", session.user.username);
 
+      // Prepare request payload
+      const requestPayload = {
+        accountIdsOrUsernames: [session.user.username]
+      };
+      
+      console.log("📤 Sending Ethos API request:", {
+        url: 'https://api.ethos.network/api/v2/users/by/x',
+        method: 'POST',
+        payload: requestPayload
+      });
+
       // Check Ethos API for user reputation
       const ethosResponse = await fetch('https://api.ethos.network/api/v2/users/by/x', {
         method: 'POST',
@@ -61,13 +72,15 @@ export const handler: Handlers = {
           'accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          accountIdsOrUsernames: [session.user.username]
-        })
+        body: JSON.stringify(requestPayload)
       });
       
+      console.log("📥 Ethos API response status:", ethosResponse.status);
+      console.log("📥 Ethos API response headers:", Object.fromEntries(ethosResponse.headers.entries()));
+      
       if (!ethosResponse.ok) {
-        console.log("❌ Ethos API request failed:", ethosResponse.status);
+        const errorText = await ethosResponse.text();
+        console.log("❌ Ethos API request failed:", ethosResponse.status, errorText);
         return new Response(JSON.stringify({ 
           authenticated: true, 
           user: session.user,
@@ -81,6 +94,7 @@ export const handler: Handlers = {
       }
 
       const ethosData: EthosUserResponse = await ethosResponse.json();
+      console.log("📥 Ethos API response data:", JSON.stringify(ethosData, null, 2));
       
       if (!ethosData.data || ethosData.data.length === 0) {
         console.log("❌ No Ethos profile data found");
