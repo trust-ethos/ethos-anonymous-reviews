@@ -38,7 +38,7 @@ export default function Home() {
           {/* Review Form Card */}
           <div class="bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden">
             {/* Atmospheric Header Image */}
-            <div class="relative h-32 bg-gradient-to-b from-neutral-800 to-neutral-900 overflow-hidden">
+            <div class="relative h-48 bg-gradient-to-b from-neutral-800 to-neutral-900 overflow-hidden">
               <img 
                 src="/anonymous-figure.png" 
                 alt="Anonymous figure in shadows"
