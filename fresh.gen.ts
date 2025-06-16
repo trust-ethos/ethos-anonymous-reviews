@@ -7,6 +7,7 @@ import * as $_app from "./routes/_app.tsx";
 import * as $api_auth_csrf from "./routes/api/auth/csrf.ts";
 import * as $api_auth_me from "./routes/api/auth/me.ts";
 import * as $api_auth_reputation from "./routes/api/auth/reputation.ts";
+import * as $api_discord_test from "./routes/api/discord/test.ts";
 import * as $api_joke from "./routes/api/joke.ts";
 import * as $api_reviews_submit from "./routes/api/reviews/submit.ts";
 import * as $auth_logout from "./routes/auth/logout.ts";
@@ -27,6 +28,7 @@ const manifest = {
     "./routes/api/auth/csrf.ts": $api_auth_csrf,
     "./routes/api/auth/me.ts": $api_auth_me,
     "./routes/api/auth/reputation.ts": $api_auth_reputation,
+    "./routes/api/discord/test.ts": $api_discord_test,
     "./routes/api/joke.ts": $api_joke,
     "./routes/api/reviews/submit.ts": $api_reviews_submit,
     "./routes/auth/logout.ts": $auth_logout,

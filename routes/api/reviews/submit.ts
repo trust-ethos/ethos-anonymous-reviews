@@ -9,6 +9,7 @@ import {
   validateReviewContent,
   type SecureSession 
 } from "../../../utils/security.ts";
+import { sendReviewNotification } from "../../../utils/discord.ts";
 
 interface TwitterSession {
   user: {
@@ -293,6 +294,19 @@ export const handler: Handlers = {
       const result: ReviewSubmissionResult = await submitReview(reviewData);
 
       console.log("✅ Secure review submitted successfully:", result.transactionHash);
+
+      // Send Discord notification (non-blocking)
+      sendReviewNotification({
+        sentiment: body.sentiment,
+        title: body.title,
+        description: body.description,
+        reviewerReputationLevel: reviewerReputationLevel,
+        targetUsername: body.profileUsername,
+        transactionHash: result.transactionHash,
+        reviewId: result.reviewId?.toString()
+      }).catch(error => {
+        console.error("⚠️ Discord notification failed (non-critical):", error);
+      });
 
       return new Response(JSON.stringify({ 
         success: true, 
