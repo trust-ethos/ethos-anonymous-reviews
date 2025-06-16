@@ -251,7 +251,7 @@ export default function ReviewForm() {
           required
         />
         <div class="text-xs text-neutral-500 mt-1">
-          Please be thoughtful about what you write. Including evidence is always wise, especially when anonymous
+          Please be thoughtful about what you write. Including evidence is always wise, especially when anonymous. Messages of hate or violence may be removed from the Ethos.network website per our <a href="https://ethos.network/terms" target="_blank" rel="noopener noreferrer" class="text-neutral-400 hover:text-neutral-300 underline">Terms of Service</a>.
         </div>
       </div>
 
