@@ -2,10 +2,13 @@ import { useSignal } from "@preact/signals";
 import EthosProfileSearch from "./EthosProfileSearch.tsx";
 
 interface EthosProfile {
-  id: string;
+  id: number;
+  profileId: number;
+  displayName: string;
   username: string;
-  avatar?: string;
+  avatarUrl?: string;
   score: number;
+  description?: string;
 }
 
 export default function ReviewForm() {

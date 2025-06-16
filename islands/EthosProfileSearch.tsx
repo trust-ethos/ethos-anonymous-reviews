@@ -2,10 +2,13 @@ import { useSignal } from "@preact/signals";
 import { Signal } from "@preact/signals";
 
 interface EthosProfile {
-  id: string;
+  id: number;
+  profileId: number;
+  displayName: string;
   username: string;
-  avatar?: string;
+  avatarUrl?: string;
   score: number;
+  description?: string;
 }
 
 interface EthosProfileSearchProps {
@@ -41,9 +44,12 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
       
       searchResults.value = profiles.map((profile: any) => ({
         id: profile.id,
+        profileId: profile.profileId,
+        displayName: profile.displayName,
         username: profile.username,
-        avatar: profile.avatar,
+        avatarUrl: profile.avatarUrl,
         score: profile.score || 0,
+        description: profile.description,
       }));
       
       showResults.value = true;
@@ -95,9 +101,9 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center text-sm font-medium overflow-hidden">
-                {selectedProfile.value.avatar ? (
+                {selectedProfile.value.avatarUrl ? (
                   <img 
-                    src={selectedProfile.value.avatar} 
+                    src={selectedProfile.value.avatarUrl} 
                     alt={selectedProfile.value.username}
                     class="w-full h-full object-cover"
                   />
@@ -106,7 +112,8 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
                 )}
               </div>
               <div>
-                <div class="font-medium">@{selectedProfile.value.username}</div>
+                <div class="font-medium">{selectedProfile.value.displayName || `@${selectedProfile.value.username}`}</div>
+                <div class="text-xs text-neutral-400">@{selectedProfile.value.username}</div>
                 <div class={`text-xs ${getScoreColor(selectedProfile.value.score)}`}>
                   {selectedProfile.value.score} - {getScoreLabel(selectedProfile.value.score)}
                 </div>
@@ -152,9 +159,9 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
                 >
                   <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center text-sm font-medium overflow-hidden flex-shrink-0">
-                      {profile.avatar ? (
+                      {profile.avatarUrl ? (
                         <img 
-                          src={profile.avatar} 
+                          src={profile.avatarUrl} 
                           alt={profile.username}
                           class="w-full h-full object-cover"
                         />
@@ -163,7 +170,8 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
                       )}
                     </div>
                     <div class="flex-1 min-w-0">
-                      <div class="font-medium truncate">@{profile.username}</div>
+                      <div class="font-medium truncate">{profile.displayName || `@${profile.username}`}</div>
+                      <div class="text-xs text-neutral-400 truncate">@{profile.username}</div>
                       <div class={`text-xs ${getScoreColor(profile.score)}`}>
                         {profile.score} - {getScoreLabel(profile.score)}
                       </div>
