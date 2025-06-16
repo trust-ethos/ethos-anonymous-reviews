@@ -29,11 +29,6 @@ export default function Home() {
       <div class="container mx-auto px-4 py-16">
         <div class="max-w-2xl mx-auto">
           {/* Header */}
-          <div class="text-center mb-16">
-            <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-              Anon reviews for Ethos
-            </h1>
-          </div>
 
           {/* Review Form Card */}
           <div class="bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden">
@@ -55,7 +50,7 @@ export default function Home() {
             </div>
             
             {/* Form Content */}
-            <div class="p-8">
+            <div class="px-8 pb-8">
               <ReviewForm />
             </div>
           </div>
