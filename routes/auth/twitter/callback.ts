@@ -26,16 +26,23 @@ export const handler: Handlers = {
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state");
     
+    console.log("🔄 Twitter callback received:", { code: !!code, state: !!state });
+    
     // Get the state from cookie for verification
     const cookies = req.headers.get("cookie") || "";
     const stateCookie = cookies.split(";").find(c => c.trim().startsWith("twitter_oauth_state="));
     const expectedState = stateCookie?.split("=")[1];
 
+    console.log("🍪 State verification:", { received: state, expected: expectedState });
+
     if (!code || !state || state !== expectedState) {
+      console.error("❌ Invalid OAuth callback:", { code: !!code, state, expectedState });
       return new Response("Invalid OAuth callback", { status: 400 });
     }
 
     try {
+      console.log("🔄 Exchanging code for token...");
+      
       // Exchange code for access token
       const tokenResponse = await fetch("https://api.twitter.com/2/oauth2/token", {
         method: "POST",
@@ -52,10 +59,13 @@ export const handler: Handlers = {
       });
 
       if (!tokenResponse.ok) {
+        const errorText = await tokenResponse.text();
+        console.error("❌ Token exchange failed:", tokenResponse.status, errorText);
         throw new Error(`Token exchange failed: ${tokenResponse.status}`);
       }
 
       const tokenData: TwitterTokenResponse = await tokenResponse.json();
+      console.log("✅ Token received, fetching user data...");
 
       // Get user information
       const userResponse = await fetch("https://api.twitter.com/2/users/me?user.fields=profile_image_url", {
@@ -65,11 +75,15 @@ export const handler: Handlers = {
       });
 
       if (!userResponse.ok) {
+        const errorText = await userResponse.text();
+        console.error("❌ User fetch failed:", userResponse.status, errorText);
         throw new Error(`User fetch failed: ${userResponse.status}`);
       }
 
       const userData = await userResponse.json();
       const user: TwitterUser = userData.data;
+      
+      console.log("✅ User data received:", { username: user.username, name: user.name });
 
       // Create session cookie with user data
       const sessionData = {
@@ -83,20 +97,27 @@ export const handler: Handlers = {
         expiresAt: Date.now() + (tokenData.expires_in * 1000),
       };
 
+      // Determine if we're in production (HTTPS) or development (HTTP)
+      const isProduction = url.protocol === "https:";
+      const cookieFlags = isProduction ? "HttpOnly; Secure; SameSite=Lax" : "HttpOnly; SameSite=Lax";
+
+      console.log("🍪 Setting session cookie...", { isProduction, cookieFlags });
+
       const response = new Response(null, {
         status: 302,
         headers: {
           "Location": "/",
           "Set-Cookie": [
-            `twitter_session=${btoa(JSON.stringify(sessionData))}; HttpOnly; Secure; SameSite=Lax; Max-Age=${tokenData.expires_in}`,
-            "twitter_oauth_state=; HttpOnly; Secure; SameSite=Lax; Max-Age=0", // Clear state cookie
+            `twitter_session=${btoa(JSON.stringify(sessionData))}; ${cookieFlags}; Max-Age=${tokenData.expires_in}`,
+            `twitter_oauth_state=; ${cookieFlags}; Max-Age=0`, // Clear state cookie
           ].join(", "),
         },
       });
 
+      console.log("✅ Authentication successful, redirecting to home");
       return response;
     } catch (error) {
-      console.error("Twitter OAuth error:", error);
+      console.error("❌ Twitter OAuth error:", error);
       return new Response("Authentication failed", { status: 500 });
     }
   },
