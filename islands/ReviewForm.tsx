@@ -277,16 +277,21 @@ export default function ReviewForm() {
           !reviewTitle.value.trim() || 
           !reviewDescription.value.trim() || 
           !sentiment.value ||
-          (reputationData.value?.authenticated && !canSubmit)
+          (reputationData.value?.authenticated && !canSubmit) ||
+          !reputationData.value?.authenticated
         }
         class={`w-full px-4 py-2 rounded-md font-medium transition-colors ${
           (reputationData.value?.authenticated && !canSubmit)
             ? "bg-red-900 text-red-300 cursor-not-allowed"
+            : !reputationData.value?.authenticated
+            ? "bg-neutral-700 text-neutral-400 cursor-not-allowed"
             : "bg-neutral-50 text-neutral-950 hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed"
         }`}
       >
         {isSubmitting.value 
           ? "Submitting..." 
+          : !reputationData.value?.authenticated
+          ? "Please login"
           : (reputationData.value?.authenticated && !canSubmit)
           ? "Must be reputable to submit"
           : "Submit Anonymous Review"
