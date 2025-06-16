@@ -310,7 +310,7 @@ export default function ReviewForm() {
       {/* Sentiment */}
       <div>
         <label class="block text-sm font-medium mb-2">
-          Review Type
+          Review type
         </label>
         <div class="flex gap-2">
           {[
@@ -337,7 +337,7 @@ export default function ReviewForm() {
       {/* Review Title */}
       <div>
         <label class="block text-sm font-medium mb-2">
-          Review Title
+          Review title
         </label>
         <input
           type="text"
