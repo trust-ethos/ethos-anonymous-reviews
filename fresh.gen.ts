@@ -10,6 +10,7 @@ import * as $index from "./routes/index.tsx";
 import * as $AuthButton from "./islands/AuthButton.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $EthosProfileSearch from "./islands/EthosProfileSearch.tsx";
+import * as $PrivyProvider from "./islands/PrivyProvider.tsx";
 import * as $ReviewForm from "./islands/ReviewForm.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
@@ -25,6 +26,7 @@ const manifest = {
     "./islands/AuthButton.tsx": $AuthButton,
     "./islands/Counter.tsx": $Counter,
     "./islands/EthosProfileSearch.tsx": $EthosProfileSearch,
+    "./islands/PrivyProvider.tsx": $PrivyProvider,
     "./islands/ReviewForm.tsx": $ReviewForm,
   },
   baseUrl: import.meta.url,

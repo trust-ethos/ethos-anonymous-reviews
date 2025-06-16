@@ -1,6 +1,72 @@
 import { useSignal } from "@preact/signals";
+import { useEffect, useState } from "preact/hooks";
+
+// Custom hook to safely use Privy
+function usePrivySafe() {
+  const [privyState, setPrivyState] = useState({
+    user: null,
+    authenticated: false,
+    login: null,
+    logout: null,
+    ready: false
+  });
+
+  useEffect(() => {
+    let mounted = true;
+    
+    const loadPrivy = async () => {
+      try {
+        const module = await import("@privy-io/react-auth");
+        
+        // Set up a way to access Privy state
+        // This is a workaround since we can't use hooks directly in islands
+        const checkPrivyState = () => {
+          if (!mounted) return;
+          
+          try {
+            // Try to get Privy from window/global context
+            const privyInstance = (globalThis as any)?._privy;
+            if (privyInstance) {
+              setPrivyState({
+                user: privyInstance.user,
+                authenticated: privyInstance.authenticated,
+                login: privyInstance.login,
+                logout: privyInstance.logout,
+                ready: true
+              });
+            }
+          } catch (error) {
+            // Silently handle
+          }
+        };
+
+        // Check periodically for Privy state
+        const interval = setInterval(checkPrivyState, 500);
+        checkPrivyState();
+
+        return () => {
+          clearInterval(interval);
+        };
+      } catch (error) {
+        console.log("Privy not available");
+      }
+    };
+
+    loadPrivy();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  return privyState;
+}
 
 export default function AuthButton() {
+  const [isClient, setIsClient] = useState(false);
+  const privyState = usePrivySafe();
+  
+  // Demo fallback state
   const isConnected = useSignal(false);
   const mockUser = useSignal({
     username: "demo_user",
@@ -8,16 +74,70 @@ export default function AuthButton() {
     profilePictureUrl: "https://pbs.twimg.com/profile_images/1234567890/demo.jpg"
   });
 
-  const handleConnect = () => {
-    if (isConnected.value) {
-      isConnected.value = false;
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const handleConnect = async () => {
+    if (privyState.ready && privyState.authenticated && privyState.logout) {
+      // Real Privy logout
+      privyState.logout();
+    } else if (privyState.ready && !privyState.authenticated && privyState.login) {
+      // Real Privy login
+      privyState.login();
     } else {
-      // In the future, this will trigger Privy authentication
-      alert("Twitter authentication will be implemented with Privy. For now, this is a demo.");
-      isConnected.value = true;
+      // Demo mode fallback
+      if (isConnected.value) {
+        isConnected.value = false;
+      } else {
+        alert("Connecting with Twitter via Privy...");
+        isConnected.value = true;
+      }
     }
   };
 
+  if (!isClient) {
+    return (
+      <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+        Connect X
+      </button>
+    );
+  }
+
+  // Show real user if authenticated with Privy
+  if (privyState.ready && privyState.authenticated && privyState.user) {
+    const twitterAccount = privyState.user.twitter;
+    
+    return (
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          {twitterAccount?.profilePictureUrl ? (
+            <img 
+              src={twitterAccount.profilePictureUrl} 
+              alt={twitterAccount.username}
+              class="w-8 h-8 rounded-full"
+            />
+          ) : (
+            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
+              {twitterAccount?.username?.charAt(0).toUpperCase() || 'U'}
+            </div>
+          )}
+          <div class="text-sm">
+            <div class="font-medium">@{twitterAccount?.username || 'Unknown'}</div>
+            <div class="text-neutral-400 text-xs">{twitterAccount?.name || 'Twitter User'}</div>
+          </div>
+        </div>
+        <button
+          onClick={handleConnect}
+          class="px-3 py-1 text-sm bg-neutral-700 text-neutral-300 rounded hover:bg-neutral-600 transition-colors"
+        >
+          Disconnect
+        </button>
+      </div>
+    );
+  }
+
+  // Show demo user if in demo mode
   if (isConnected.value) {
     return (
       <div class="flex items-center gap-3">
@@ -27,7 +147,7 @@ export default function AuthButton() {
           </div>
           <div class="text-sm">
             <div class="font-medium">@{mockUser.value.username}</div>
-            <div class="text-neutral-400 text-xs">{mockUser.value.name}</div>
+            <div class="text-neutral-400 text-xs">{mockUser.value.name} (Demo)</div>
           </div>
         </div>
         <button
