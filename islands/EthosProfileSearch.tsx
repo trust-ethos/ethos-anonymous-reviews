@@ -174,7 +174,7 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
             type="text"
             value={searchQuery.value}
             onInput={handleInputChange}
-            placeholder="Search for Ethos profiles..."
+            placeholder="Search for X accounts..."
             class="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-transparent"
           />
           

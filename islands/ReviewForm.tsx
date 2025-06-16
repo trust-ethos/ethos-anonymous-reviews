@@ -150,7 +150,7 @@ export default function ReviewForm() {
       {/* Profile Search */}
       <div>
         <label class="block text-sm font-medium mb-2">
-          Select Ethos Profile
+          Select X account
         </label>
         <EthosProfileSearch 
           selectedProfile={selectedProfile}
