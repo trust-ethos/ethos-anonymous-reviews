@@ -5,6 +5,22 @@ import AuthButton from "../islands/AuthButton.tsx";
 export default function Home() {
   return (
     <div class="min-h-screen bg-neutral-950 text-neutral-50">
+      {/* Beta Banner */}
+      <div class="bg-yellow-500/10 border-b border-yellow-500/20 overflow-hidden">
+        <div class="animate-marquee whitespace-nowrap py-2">
+          <span class="text-yellow-400 font-bold text-sm mx-8">BETA</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">BETA</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">BETA</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">BETA</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">BETA</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">BETA</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">BETA</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">BETA</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">BETA</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">BETA</span>
+        </div>
+      </div>
+
       {/* Top Toolbar */}
       <div class="border-b border-neutral-800 bg-neutral-900/50 backdrop-blur-sm sticky top-0 z-10">
         <div class="container mx-auto px-4 py-4">
@@ -89,8 +105,21 @@ export default function Home() {
           }
         }
         
+        @keyframes marquee {
+          0% {
+            transform: translateX(100%);
+          }
+          100% {
+            transform: translateX(-100%);
+          }
+        }
+        
         .animate-slide-in {
           animation: slide-in 0.3s ease-out;
+        }
+        
+        .animate-marquee {
+          animation: marquee 15s linear infinite;
         }
       `}</style>
     </div>
