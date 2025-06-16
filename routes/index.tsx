@@ -1,5 +1,4 @@
 import { useSignal } from "@preact/signals";
-import EthosProfileSearch from "../islands/EthosProfileSearch.tsx";
 import ReviewForm from "../islands/ReviewForm.tsx";
 import AuthButton from "../islands/AuthButton.tsx";
 
@@ -7,7 +6,7 @@ export default function Home() {
   return (
     <div class="min-h-screen bg-neutral-950 text-neutral-50">
       <div class="container mx-auto px-4 py-16">
-        <div class="max-w-4xl mx-auto">
+        <div class="max-w-2xl mx-auto">
           {/* Header */}
           <div class="text-center mb-16">
             <div class="flex justify-end mb-8">
@@ -23,18 +22,9 @@ export default function Home() {
           </div>
 
           {/* Main Content */}
-          <div class="grid lg:grid-cols-2 gap-12">
-            {/* Profile Search */}
-            <div>
-              <h2 class="text-2xl font-semibold mb-6">Find Profile</h2>
-              <EthosProfileSearch />
-            </div>
-
-            {/* Review Form */}
-            <div>
-              <h2 class="text-2xl font-semibold mb-6">Submit Review</h2>
-              <ReviewForm />
-            </div>
+          <div class="bg-neutral-900 border border-neutral-800 rounded-lg p-8">
+            <h2 class="text-2xl font-semibold mb-6">Submit Anonymous Review</h2>
+            <ReviewForm />
           </div>
 
           {/* Footer */}
