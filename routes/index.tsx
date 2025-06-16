@@ -53,6 +53,9 @@ export default function Home() {
               <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent"></div>
               <div class="absolute bottom-4 left-6">
                 <h2 class="text-2xl font-semibold text-white drop-shadow-lg">Submit Anonymous Review</h2>
+                <p class="text-sm text-neutral-200 mt-2 max-w-md drop-shadow">
+                  Reputable or higher Ethos profiles can use this functionality to write reviews without revealing their identity. This app does not store any logs or information about who logins in or writes the reviews.
+                </p>
               </div>
             </div>
             
