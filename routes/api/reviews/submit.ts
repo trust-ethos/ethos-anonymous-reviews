@@ -230,13 +230,12 @@ export const handler: Handlers = {
         }
       });
       
-      let reviewerReputationLevel = "Reputable"; // Default fallback
+      let reviewerReputationLevel = "reputable"; // Default fallback
       if (reputationResponse.ok) {
         const reputationData = await reputationResponse.json();
         if (reputationData.reputation?.level) {
-          // Capitalize first letter for display
-          reviewerReputationLevel = reputationData.reputation.level.charAt(0).toUpperCase() + 
-                                   reputationData.reputation.level.slice(1);
+          // Use lowercase for display
+          reviewerReputationLevel = reputationData.reputation.level.toLowerCase();
         }
       }
 
