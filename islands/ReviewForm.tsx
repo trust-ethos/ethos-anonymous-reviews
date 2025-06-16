@@ -68,6 +68,33 @@ export default function ReviewForm() {
         />
       </div>
 
+      {/* Sentiment */}
+      <div>
+        <label class="block text-sm font-medium mb-2">
+          Overall Sentiment
+        </label>
+        <div class="flex gap-2">
+          {[
+            { value: "negative", label: "Negative", color: "text-red-400 border-red-400" },
+            { value: "neutral", label: "Neutral", color: "text-yellow-400 border-yellow-400" },
+            { value: "positive", label: "Positive", color: "text-green-400 border-green-400" },
+          ].map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => sentiment.value = option.value as any}
+              class={`px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
+                sentiment.value === option.value
+                  ? `${option.color} bg-opacity-10`
+                  : "border-neutral-700 text-neutral-400 hover:border-neutral-600"
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Review Title */}
       <div>
         <label class="block text-sm font-medium mb-2">
@@ -107,33 +134,6 @@ export default function ReviewForm() {
         />
         <div class="text-xs text-neutral-500 mt-1">
           Be honest and constructive in your feedback
-        </div>
-      </div>
-
-      {/* Sentiment */}
-      <div>
-        <label class="block text-sm font-medium mb-2">
-          Overall Sentiment
-        </label>
-        <div class="flex gap-2">
-          {[
-            { value: "negative", label: "Negative", color: "text-red-400 border-red-400" },
-            { value: "neutral", label: "Neutral", color: "text-yellow-400 border-yellow-400" },
-            { value: "positive", label: "Positive", color: "text-green-400 border-green-400" },
-          ].map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => sentiment.value = option.value as any}
-              class={`px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
-                sentiment.value === option.value
-                  ? `${option.color} bg-opacity-10`
-                  : "border-neutral-700 text-neutral-400 hover:border-neutral-600"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
         </div>
       </div>
 
