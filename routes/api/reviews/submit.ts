@@ -30,6 +30,7 @@ interface SubmitReviewRequest {
   sentiment: "negative" | "neutral" | "positive";
   csrfToken: string; // CSRF protection
   requestNonce: string; // Prevent replay attacks
+  reviewerReputationLevel?: string; // Reputation level from UI (prevents re-fetch failures)
 }
 
 interface EthosUser {
@@ -224,31 +225,41 @@ export const handler: Handlers = {
       }
 
       // 11. Get reviewer's reputation level for anonymous disclaimer
-      const reputationResponse = await fetch(`${req.url.split('/api/')[0]}/api/auth/reputation`, {
-        headers: {
-          'cookie': req.headers.get('cookie') || ''
-        }
-      });
-      
       let reviewerReputationLevel = "reputable"; // Default fallback
-      if (reputationResponse.ok) {
-        const reputationData = await reputationResponse.json();
-        console.log("📊 Reputation data for disclaimer:", {
-          authenticated: reputationData.authenticated,
-          hasReputation: !!reputationData.reputation,
-          reputationLevel: reputationData.reputation?.level,
-          score: reputationData.reputation?.score
+      
+      if (body.reviewerReputationLevel) {
+        // Use reputation level provided by UI (preferred method)
+        reviewerReputationLevel = body.reviewerReputationLevel.toLowerCase();
+        console.log("✅ Using reputation level from UI:", reviewerReputationLevel);
+      } else {
+        // Fallback: try to fetch reputation data (original method)
+        console.log("⚠️ No reputation level provided by UI, attempting to fetch...");
+        
+        const reputationResponse = await fetch(`${req.url.split('/api/')[0]}/api/auth/reputation`, {
+          headers: {
+            'cookie': req.headers.get('cookie') || ''
+          }
         });
         
-        if (reputationData.reputation?.level) {
-          // Use lowercase for display
-          reviewerReputationLevel = reputationData.reputation.level.toLowerCase();
-          console.log("✅ Using reputation level for disclaimer:", reviewerReputationLevel);
+        if (reputationResponse.ok) {
+          const reputationData = await reputationResponse.json();
+          console.log("📊 Reputation data for disclaimer:", {
+            authenticated: reputationData.authenticated,
+            hasReputation: !!reputationData.reputation,
+            reputationLevel: reputationData.reputation?.level,
+            score: reputationData.reputation?.score
+          });
+          
+          if (reputationData.reputation?.level) {
+            // Use lowercase for display
+            reviewerReputationLevel = reputationData.reputation.level.toLowerCase();
+            console.log("✅ Using reputation level for disclaimer:", reviewerReputationLevel);
+          } else {
+            console.log("⚠️ No reputation level found, using default:", reviewerReputationLevel);
+          }
         } else {
-          console.log("⚠️ No reputation level found, using default:", reviewerReputationLevel);
+          console.log("❌ Failed to fetch reputation data for disclaimer");
         }
-      } else {
-        console.log("❌ Failed to fetch reputation data for disclaimer");
       }
 
       // 12. Prepare review data for blockchain submission

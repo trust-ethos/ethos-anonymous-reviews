@@ -122,6 +122,7 @@ export default function ReviewForm() {
           sentiment: sentiment.value,
           csrfToken: csrfToken,
           requestNonce: crypto.randomUUID(), // Generate proper unique nonce
+          reviewerReputationLevel: reputationData.value?.reputation?.level || "reputable", // Pass known reputation level
         }),
       });
 
