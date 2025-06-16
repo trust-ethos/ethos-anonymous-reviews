@@ -1,4 +1,5 @@
 import { Handlers } from "$fresh/server.ts";
+import { verifySecureSession, type SecureSession } from "../../../utils/security.ts";
 
 interface TwitterSession {
   user: {
@@ -46,11 +47,10 @@ export const handler: Handlers = {
       }
 
       const sessionData = sessionCookie.split("=")[1];
-      const session: TwitterSession = JSON.parse(atob(sessionData));
+      const session: SecureSession | null = await verifySecureSession(sessionData);
 
-      // Check if session is expired
-      if (Date.now() > session.expiresAt) {
-        console.log("❌ Session expired");
+      if (!session) {
+        console.log("❌ Invalid or expired session");
         return new Response(JSON.stringify({ authenticated: false, expired: true }), {
           status: 401,
           headers: { "Content-Type": "application/json" },
