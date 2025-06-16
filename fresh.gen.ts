@@ -4,13 +4,16 @@
 
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
+import * as $api_auth_me from "./routes/api/auth/me.ts";
 import * as $api_joke from "./routes/api/joke.ts";
+import * as $auth_logout from "./routes/auth/logout.ts";
+import * as $auth_twitter from "./routes/auth/twitter.ts";
+import * as $auth_twitter_callback from "./routes/auth/twitter/callback.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $AuthButton from "./islands/AuthButton.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $EthosProfileSearch from "./islands/EthosProfileSearch.tsx";
-import * as $PrivyProvider from "./islands/PrivyProvider.tsx";
 import * as $ReviewForm from "./islands/ReviewForm.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
@@ -18,7 +21,11 @@ const manifest = {
   routes: {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
+    "./routes/api/auth/me.ts": $api_auth_me,
     "./routes/api/joke.ts": $api_joke,
+    "./routes/auth/logout.ts": $auth_logout,
+    "./routes/auth/twitter.ts": $auth_twitter,
+    "./routes/auth/twitter/callback.ts": $auth_twitter_callback,
     "./routes/greet/[name].tsx": $greet_name_,
     "./routes/index.tsx": $index,
   },
@@ -26,7 +33,6 @@ const manifest = {
     "./islands/AuthButton.tsx": $AuthButton,
     "./islands/Counter.tsx": $Counter,
     "./islands/EthosProfileSearch.tsx": $EthosProfileSearch,
-    "./islands/PrivyProvider.tsx": $PrivyProvider,
     "./islands/ReviewForm.tsx": $ReviewForm,
   },
   baseUrl: import.meta.url,
