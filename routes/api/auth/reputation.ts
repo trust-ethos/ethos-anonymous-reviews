@@ -11,17 +11,22 @@ interface TwitterSession {
   expiresAt: number;
 }
 
-interface EthosUserResponse {
-  data: {
-    id: number;
-    profileId: number;
-    displayName: string;
-    username: string;
-    avatarUrl?: string;
-    score: number;
-    description?: string;
-  }[];
+interface EthosUser {
+  id: number;
+  profileId: number;
+  displayName: string;
+  username: string;
+  avatarUrl?: string;
+  score: number;
+  description?: string;
+  status: string;
+  userkeys: string[];
+  xpTotal: number;
+  xpStreakDays: number;
+  stats: any;
 }
+
+type EthosUserResponse = EthosUser[];
 
 export const handler: Handlers = {
   async GET(req) {
@@ -96,7 +101,7 @@ export const handler: Handlers = {
       const ethosData: EthosUserResponse = await ethosResponse.json();
       console.log("📥 Ethos API response data:", JSON.stringify(ethosData, null, 2));
       
-      if (!ethosData.data || ethosData.data.length === 0) {
+      if (!ethosData || ethosData.length === 0) {
         console.log("❌ No Ethos profile data found");
         return new Response(JSON.stringify({ 
           authenticated: true, 
@@ -110,7 +115,7 @@ export const handler: Handlers = {
         });
       }
 
-      const userProfile = ethosData.data[0]; // Get the first (and should be only) user
+      const userProfile = ethosData[0]; // Get the first (and should be only) user
       const score = userProfile.score;
       const canSubmit = score >= 1600;
       
