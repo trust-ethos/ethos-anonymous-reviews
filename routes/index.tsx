@@ -5,13 +5,23 @@ import AuthButton from "../islands/AuthButton.tsx";
 export default function Home() {
   return (
     <div class="min-h-screen bg-neutral-950 text-neutral-50">
+      {/* Top Toolbar */}
+      <div class="border-b border-neutral-800 bg-neutral-900/50 backdrop-blur-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <h1 class="text-xl font-semibold">Ethos Anonymous Reviews</h1>
+            </div>
+            <AuthButton />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
       <div class="container mx-auto px-4 py-16">
         <div class="max-w-2xl mx-auto">
           {/* Header */}
           <div class="text-center mb-16">
-            <div class="flex justify-end mb-8">
-              <AuthButton />
-            </div>
             <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-6">
               Ethos Anonymous Reviews
             </h1>
@@ -21,7 +31,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Main Content */}
+          {/* Review Form Card */}
           <div class="bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden">
             {/* Atmospheric Header Image */}
             <div class="relative h-32 bg-gradient-to-b from-neutral-800 to-neutral-900 overflow-hidden">
