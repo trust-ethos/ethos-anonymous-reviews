@@ -19,11 +19,14 @@ export default function Home() {
       {/* Beta Banner */}
       <div class="bg-yellow-500/10 border-b border-yellow-500/20 overflow-hidden">
         <div class="animate-marquee whitespace-nowrap py-2">
-          <span class="text-yellow-400 font-medium text-sm mx-12">This is a beta. It might break</span>
-          <span class="text-yellow-400 font-medium text-sm mx-12">This is a beta. It might break</span>
-          <span class="text-yellow-400 font-medium text-sm mx-12">This is a beta. It might break</span>
-          <span class="text-yellow-400 font-medium text-sm mx-12">This is a beta. It might break</span>
-          <span class="text-yellow-400 font-medium text-sm mx-12">This is a beta. It might break</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
         </div>
       </div>
 
@@ -53,7 +56,7 @@ export default function Home() {
               <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent"></div>
               <div class="absolute bottom-4 left-6">
                 <h2 class="text-2xl font-semibold text-white drop-shadow-lg">Submit Anonymous Review</h2>
-                <p class="text-sm text-neutral-200 mt-2 max-w-md drop-shadow">
+                <p class="text-sm text-neutral-300 mt-2 max-w-md drop-shadow">
                   Reputable or higher Ethos profiles can use this functionality to write reviews without revealing their identity. This app does not store any logs or information about who logins in or writes the reviews.
                 </p>
               </div>
@@ -117,7 +120,7 @@ export default function Home() {
         }
         
         .animate-marquee {
-          animation: marquee 45s linear infinite;
+          animation: marquee 20s linear infinite;
         }
       `}</style>
     </div>
