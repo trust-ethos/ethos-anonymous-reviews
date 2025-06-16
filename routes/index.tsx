@@ -36,11 +36,8 @@ export default function Home() {
           {/* Header */}
           <div class="text-center mb-16">
             <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-              Ethos Anonymous Reviews
+              Anon reviews for Ethos
             </h1>
-            <p class="text-xl text-neutral-400 max-w-2xl mx-auto">
-              Leave anonymous reviews on Ethos for any X account or ENS name. <br /> Only reputable or higher Ethos profiles can use this functionality.
-            </p>
           </div>
 
           {/* Review Form Card */}
