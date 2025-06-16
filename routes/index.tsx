@@ -61,7 +61,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 class="text-neutral-300 hover:text-neutral-100 underline"
               >
-                Ethos Network
+                Ethos
               </a>
               {" "}and{" "}
               <a 
