@@ -20,7 +20,7 @@ interface EthosUserResponse {
     avatarUrl?: string;
     score: number;
     description?: string;
-  } | null;
+  }[];
 }
 
 export const handler: Handlers = {
@@ -55,17 +55,26 @@ export const handler: Handlers = {
       console.log("✅ User authenticated, checking Ethos reputation for:", session.user.username);
 
       // Check Ethos API for user reputation
-      const ethosResponse = await fetch(`https://api.ethos.network/api/v2/users/by/x/${session.user.username}`);
+      const ethosResponse = await fetch('https://api.ethos.network/api/v2/users/by/x', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          accountIdsOrUsernames: [session.user.username]
+        })
+      });
       
       if (!ethosResponse.ok) {
-        console.log("❌ User not found in Ethos network");
+        console.log("❌ Ethos API request failed:", ethosResponse.status);
         return new Response(JSON.stringify({ 
           authenticated: true, 
           user: session.user,
           ethosProfile: null,
           reputation: null,
           canSubmit: false,
-          reason: "User not found in Ethos network"
+          reason: "Failed to check Ethos network"
         }), {
           headers: { "Content-Type": "application/json" },
         });
@@ -73,7 +82,7 @@ export const handler: Handlers = {
 
       const ethosData: EthosUserResponse = await ethosResponse.json();
       
-      if (!ethosData.data) {
+      if (!ethosData.data || ethosData.data.length === 0) {
         console.log("❌ No Ethos profile data found");
         return new Response(JSON.stringify({ 
           authenticated: true, 
@@ -87,7 +96,8 @@ export const handler: Handlers = {
         });
       }
 
-      const score = ethosData.data.score;
+      const userProfile = ethosData.data[0]; // Get the first (and should be only) user
+      const score = userProfile.score;
       const canSubmit = score >= 1600;
       
       let reputationLevel = "unknown";
@@ -102,7 +112,7 @@ export const handler: Handlers = {
       return new Response(JSON.stringify({ 
         authenticated: true, 
         user: session.user,
-        ethosProfile: ethosData.data,
+        ethosProfile: userProfile,
         reputation: {
           score,
           level: reputationLevel,
