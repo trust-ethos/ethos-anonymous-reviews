@@ -19,14 +19,9 @@ export default function Home() {
       {/* Beta Banner */}
       <div class="bg-yellow-500/10 border-b border-yellow-500/20 overflow-hidden">
         <div class="animate-marquee whitespace-nowrap py-2">
-          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
-          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
-          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
-          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
-          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
-          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
-          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
-          <span class="text-yellow-400 font-bold text-sm mx-8">THIS IS A BETA. IT MIGHT BREAK</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">ANON REVIEWS ARE IN BETA. PLEASE EXPECT TO BREAK IT.</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">ANON REVIEWS ARE IN BETA. PLEASE EXPECT TO BREAK IT.</span>
+          <span class="text-yellow-400 font-bold text-sm mx-8">ANON REVIEWS ARE IN BETA. PLEASE EXPECT TO BREAK IT.</span>
         </div>
       </div>
 
