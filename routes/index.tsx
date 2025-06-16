@@ -44,7 +44,7 @@ export default function Home() {
               <div class="absolute top-6 left-6">
                 <h2 class="text-2xl font-semibold text-white drop-shadow-lg">Submit anon Ethos review</h2>
                 <p class="text-sm text-neutral-300 mt-2 max-w-md drop-shadow">
-                  Reputable or higher Ethos profiles can use this functionality to write reviews without revealing their identity. This app does not store any logs or information about who logins in or writes the reviews.
+                  Reputable or higher Ethos profiles can use this functionality to write reviews without revealing their identity. This app does not store any logs or information about who logs in or writes the reviews.
                 </p>
               </div>
             </div>
@@ -60,7 +60,7 @@ export default function Home() {
             <p>
               Powered by{" "}
               <a 
-                href="https://ethos.network" 
+                href="https://app.ethos.network" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 class="text-neutral-300 hover:text-neutral-100 underline"
@@ -69,12 +69,12 @@ export default function Home() {
               </a>
               {" "}and{" "}
               <a 
-                href="https://base.org" 
+                href="https://app.ethos.network/profile/x/kairosagent" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 class="text-neutral-300 hover:text-neutral-100 underline"
               >
-                Base
+                KairosAgent
               </a>
             </p>
           </div>
