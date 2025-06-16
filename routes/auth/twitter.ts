@@ -26,7 +26,7 @@ export const handler: Handlers = {
     const response = new Response(null, {
       status: 302,
       headers: {
-        "Set-Cookie": `twitter_oauth_state=${state}; ${cookieFlags}; Max-Age=600`,
+        "Set-Cookie": `twitter_oauth_state=${state}; Path=/; ${cookieFlags}; Max-Age=600`,
       },
     });
 

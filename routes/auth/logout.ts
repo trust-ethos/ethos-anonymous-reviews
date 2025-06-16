@@ -10,7 +10,7 @@ export const handler: Handlers = {
       status: 302,
       headers: {
         "Location": "/",
-        "Set-Cookie": `twitter_session=; ${cookieFlags}; Max-Age=0`,
+        "Set-Cookie": `twitter_session=; Path=/; ${cookieFlags}; Max-Age=0`,
       },
     });
   },

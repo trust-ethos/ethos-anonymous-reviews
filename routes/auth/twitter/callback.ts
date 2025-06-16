@@ -105,10 +105,15 @@ export const handler: Handlers = {
 
       console.log("🍪 Setting session cookie...", { isProduction, cookieFlags });
 
+      const sessionCookie = `twitter_session=${btoa(JSON.stringify(sessionData))}; Path=/; ${cookieFlags}; Max-Age=${tokenData.expires_in}`;
+      const clearStateCookie = `twitter_oauth_state=; Path=/; ${cookieFlags}; Max-Age=0`;
+      
+      console.log("🍪 Cookie strings:", { sessionCookie, clearStateCookie });
+
       const headers = new Headers();
       headers.set("Location", "/");
-      headers.append("Set-Cookie", `twitter_session=${btoa(JSON.stringify(sessionData))}; ${cookieFlags}; Max-Age=${tokenData.expires_in}`);
-      headers.append("Set-Cookie", `twitter_oauth_state=; ${cookieFlags}; Max-Age=0`); // Clear state cookie
+      headers.append("Set-Cookie", sessionCookie);
+      headers.append("Set-Cookie", clearStateCookie); // Clear state cookie
 
       const response = new Response(null, {
         status: 302,
