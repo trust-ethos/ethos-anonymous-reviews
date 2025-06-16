@@ -56,10 +56,11 @@ export function getBlockchainConfig(): BlockchainConfig {
 
 export interface ReviewData {
   score: number; // 1-5 rating
-  subjectAddress: string; // Ethereum address of the person being reviewed
+  subjectAddress: string; // Ethereum address (can be zero address when using attestation)
   comment: string; // Short review title
   description: string; // Detailed review description
   reviewerUsername: string; // X username of reviewer (for attestation)
+  subjectXAccountId?: string; // X account ID of the person being reviewed (for attestation)
 }
 
 export interface AttestationDetails {
@@ -92,21 +93,25 @@ export async function submitReview(reviewData: ReviewData): Promise<string> {
     timestamp: new Date().toISOString()
   });
   
-  // Prepare attestation details
+  // Prepare attestation details - use subject's X account ID for attestation
   const attestationDetails: AttestationDetails = {
-    account: reviewData.reviewerUsername,
-    service: "twitter"
+    account: reviewData.subjectXAccountId || reviewData.reviewerUsername,
+    service: "x.com"
   };
   
   // Convert score to uint8 (1-5 scale)
   const score = Math.max(1, Math.min(5, reviewData.score));
   
   try {
-    console.log("Submitting review to blockchain...", {
+    console.log("🔗 Submitting review to blockchain with parameters:", {
       score,
       subject: reviewData.subjectAddress,
+      paymentToken: "0x0000000000000000000000000000000000000000",
       comment: reviewData.comment,
-      network: config.chainId === 8453 ? "mainnet" : "testnet"
+      metadata,
+      attestationDetails,
+      network: config.chainId === 8453 ? "mainnet" : "testnet",
+      contractAddress: config.contractAddress
     });
     
     // Submit transaction

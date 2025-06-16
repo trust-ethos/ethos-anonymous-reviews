@@ -49,10 +49,10 @@ interface EthosUser {
 
 type EthosUserResponse = EthosUser[];
 
-// Function to resolve Ethereum address from Ethos API
-async function resolveEthereumAddress(username: string): Promise<string | null> {
+// Function to resolve X account ID from Ethos API
+async function resolveXAccountId(username: string): Promise<string | null> {
   try {
-    console.log("🔍 Resolving Ethereum address for:", username);
+    console.log("🔍 Resolving X account ID for:", username);
     
     const requestPayload = {
       accountIdsOrUsernames: [username]
@@ -81,21 +81,21 @@ async function resolveEthereumAddress(username: string): Promise<string | null> 
 
     const userProfile = ethosData[0];
     
-    // Check if user has any Ethereum addresses in their userkeys
-    const ethereumKeys = userProfile.userkeys?.filter(key => 
-      key.startsWith('0x') && key.length === 42
+    // Look for X.com service key in userkeys
+    const xServiceKey = userProfile.userkeys?.find(key => 
+      key.startsWith('service:x.com:')
     );
     
-    if (ethereumKeys && ethereumKeys.length > 0) {
-      const address = ethereumKeys[0]; // Use the first Ethereum address
-      console.log("✅ Found Ethereum address for", username, ":", address);
-      return address;
+    if (xServiceKey) {
+      const accountId = xServiceKey.replace('service:x.com:', '');
+      console.log("✅ Found X account ID for", username, ":", accountId);
+      return accountId;
     }
     
-    console.log("❌ No Ethereum address found in userkeys for:", username);
+    console.log("❌ No X account ID found in userkeys for:", username);
     return null;
   } catch (error) {
-    console.error("❌ Error resolving Ethereum address:", error);
+    console.error("❌ Error resolving X account ID:", error);
     return null;
   }
 }
@@ -210,28 +210,14 @@ export const handler: Handlers = {
         });
       }
 
-      // 10. Resolve Ethereum address
-      let subjectAddress = body.profileAddress;
+      // 10. Resolve X account ID for attestation
+      console.log("🔍 Resolving X account ID for attestation...");
+      const xAccountId = await resolveXAccountId(body.profileUsername);
       
-      if (!subjectAddress) {
-        // Try to resolve address from Ethos API
-        console.log("🔍 No Ethereum address provided, resolving from Ethos API...");
-        const resolvedAddress = await resolveEthereumAddress(body.profileUsername);
-        
-        if (!resolvedAddress) {
-          return new Response(JSON.stringify({ 
-            error: `No Ethereum address found for X account @${body.profileUsername}. The user needs to connect their Ethereum wallet to their Ethos profile to receive reviews.` 
-          }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-        
-        subjectAddress = resolvedAddress;
-      }
-
-      if (!isValidEthereumAddress(subjectAddress)) {
-        return new Response(JSON.stringify({ error: "Invalid Ethereum address" }), {
+      if (!xAccountId) {
+        return new Response(JSON.stringify({ 
+          error: `No X account ID found for @${body.profileUsername}. The user needs to have their X account connected to their Ethos profile to receive reviews.` 
+        }), {
           status: 400,
           headers: { "Content-Type": "application/json" },
         });
@@ -240,16 +226,25 @@ export const handler: Handlers = {
       // 11. Prepare review data for blockchain submission
       const reviewData: ReviewData = {
         score: sentimentToScore(body.sentiment),
-        subjectAddress: subjectAddress,
+        subjectAddress: "0x0000000000000000000000000000000000000000", // Zero address - using attestation instead
         comment: body.title,
         description: body.description,
-        reviewerUsername: session.user.username
+        reviewerUsername: session.user.username,
+        subjectXAccountId: xAccountId // Add X account ID for attestation
       };
 
-      console.log("🔗 Submitting to blockchain...", {
+      console.log("🔗 Submitting review to blockchain with data:", {
         reviewer: session.user.username,
+        reviewerXId: session.user.id,
         subject: body.profileUsername,
+        subjectXAccountId: xAccountId,
         score: reviewData.score,
+        sentiment: body.sentiment,
+        title: body.title,
+        description: body.description,
+        subjectAddress: reviewData.subjectAddress,
+        paymentToken: "0x0000000000000000000000000000000000000000",
+        attestationService: "x.com",
         securityChecks: "✅ All passed"
       });
 
