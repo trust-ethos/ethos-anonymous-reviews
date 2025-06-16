@@ -98,7 +98,9 @@ export const handler: Handlers = {
       };
 
       // Determine if we're in production (HTTPS) or development (HTTP)
-      const isProduction = url.hostname !== "localhost" && url.hostname !== "127.0.0.1";
+      console.log("🔍 URL details:", { hostname: url.hostname, protocol: url.protocol, href: url.href });
+      // Force development mode for now to fix cookie issues
+      const isProduction = false;
       const cookieFlags = isProduction ? "HttpOnly; Secure; SameSite=Lax" : "HttpOnly; SameSite=Lax";
 
       console.log("🍪 Setting session cookie...", { isProduction, cookieFlags });
