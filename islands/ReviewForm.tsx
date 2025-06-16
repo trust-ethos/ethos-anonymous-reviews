@@ -43,6 +43,7 @@ export default function ReviewForm() {
   const submitSuccess = useSignal<{
     transactionHash?: string;
     reviewId?: string;
+    profileUsername?: string;
   } | null>(null);
 
   useEffect(() => {
