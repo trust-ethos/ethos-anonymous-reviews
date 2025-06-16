@@ -16,39 +16,18 @@ function usePrivySafe() {
     
     const loadPrivy = async () => {
       try {
-        // Try to load Privy from ESM
-        const module = await import("https://esm.sh/@privy-io/react-auth@1.88.4");
+        // Use the import map reference
+        const module = await import("@privy-io/react-auth");
+        console.log("✅ Privy hooks loaded successfully");
         
-        // Set up a way to access Privy state
-        const checkPrivyState = () => {
-          if (!mounted) return;
-          
-          try {
-            // Try to get Privy from window/global context
-            const privyInstance = (globalThis as any)?._privy;
-            if (privyInstance) {
-              setPrivyState({
-                user: privyInstance.user,
-                authenticated: privyInstance.authenticated,
-                login: privyInstance.login,
-                logout: privyInstance.logout,
-                ready: true
-              });
-            }
-          } catch (error) {
-            // Silently handle
-          }
-        };
-
-        // Check periodically for Privy state
-        const interval = setInterval(checkPrivyState, 500);
-        checkPrivyState();
-
-        return () => {
-          clearInterval(interval);
-        };
+        // Try to use Privy hooks if available
+        if (module.usePrivy && module.useLogin && module.useLogout) {
+          // This is a simplified approach - in a real app you'd need to handle this differently
+          // For now, we'll just mark as ready and let the demo mode handle it
+          setPrivyState(prev => ({ ...prev, ready: true }));
+        }
       } catch (error) {
-        console.log("Privy not available");
+        console.log("⚠️ Privy hooks not available, using demo mode");
       }
     };
 
@@ -90,7 +69,18 @@ export default function AuthButton() {
       if (isConnected.value) {
         isConnected.value = false;
       } else {
-        alert("Connecting with Twitter via Privy...");
+        console.log("🔗 Attempting to connect with Privy...");
+        // Try to trigger Privy login if available
+        try {
+          const module = await import("@privy-io/react-auth");
+          if (module.useLogin) {
+            console.log("✅ Privy available, but login needs to be handled in provider context");
+          }
+        } catch (error) {
+          console.log("⚠️ Privy not available, using demo mode");
+        }
+        
+        alert("Demo mode: Connecting with Twitter via Privy...");
         isConnected.value = true;
       }
     }

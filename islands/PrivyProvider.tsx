@@ -13,14 +13,14 @@ export default function PrivyProvider({ children }: PrivyProviderProps) {
   useEffect(() => {
     setIsClient(true);
     
-    // Try to dynamically import Privy - this will work when the dependency is available
+    // Try to dynamically import Privy using the import map
     const loadPrivy = async () => {
       try {
-        // This will only work if @privy-io/react-auth is available
-        const module = await import("https://esm.sh/@privy-io/react-auth@1.88.4");
+        const module = await import("@privy-io/react-auth");
         setPrivyComponent(() => module.PrivyProvider);
+        console.log("✅ Privy loaded successfully");
       } catch (error) {
-        console.warn("Privy not available, running in demo mode");
+        console.warn("⚠️ Privy not available, running in demo mode:", error);
       }
     };
 
