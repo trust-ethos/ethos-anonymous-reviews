@@ -136,7 +136,7 @@ export const handler: Handlers = {
           score,
           level: reputationLevel,
           canSubmit,
-          reason: canSubmit ? null : "Must be reputable to submit (score ≥ 1600)"
+          reason: canSubmit ? null : `Must be reputable to submit (score ≥ 1600). Your current score: ${score}`
         }
       }), {
         headers: { "Content-Type": "application/json" },

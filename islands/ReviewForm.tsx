@@ -149,8 +149,8 @@ export default function ReviewForm() {
 
   return (
     <form onSubmit={handleSubmit} class="space-y-6">
-      {/* You Section - Show when authenticated */}
-      {reputationData.value?.authenticated && (
+      {/* You Section - Show when authenticated and reputable */}
+      {reputationData.value?.authenticated && canSubmit && (
         <div>
           <label class="block text-sm font-medium mb-2">
             You
