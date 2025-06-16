@@ -40,6 +40,10 @@ export default function ReviewForm() {
   const isSubmitting = useSignal(false);
   const reputationData = useSignal<ReputationData | null>(null);
   const isLoadingReputation = useSignal(true);
+  const submitSuccess = useSignal<{
+    transactionHash?: string;
+    reviewId?: string;
+  } | null>(null);
 
   useEffect(() => {
     // Check user reputation on component mount
@@ -126,17 +130,11 @@ export default function ReviewForm() {
       if (response.ok) {
         console.log("✅ Review submitted successfully:", result);
         
-        // Create success message with links
-        let message = "Review submitted successfully to blockchain!";
-        if (result.transactionHash) {
-          message += `\n\nTransaction: ${result.transactionHash}`;
-          message += `\nView on BaseScan: https://basescan.org/tx/${result.transactionHash}`;
-        }
-        if (result.reviewId) {
-          message += `\nView Review on Ethos: https://app.ethos.network/activity/review/${result.reviewId}`;
-        }
-        
-        alert(message);
+        // Show success notification
+        submitSuccess.value = {
+          transactionHash: result.transactionHash,
+          reviewId: result.reviewId
+        };
         
         // Reset form
         selectedProfile.value = null;
@@ -164,6 +162,69 @@ export default function ReviewForm() {
 
   return (
     <form onSubmit={handleSubmit} class="space-y-6">
+      {/* Success Notification */}
+      {submitSuccess.value && (
+        <div class="bg-green-900/20 border border-green-700/50 rounded-lg p-6">
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0">
+              <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-green-300 mb-2">Review Submitted Successfully!</h3>
+              <p class="text-green-200 mb-4">Your anonymous review has been recorded on the blockchain.</p>
+              
+              <div class="space-y-3">
+                {submitSuccess.value.transactionHash && (
+                  <div>
+                    <div class="text-sm font-medium text-green-300 mb-1">Transaction Hash:</div>
+                    <div class="font-mono text-xs text-green-200 bg-green-900/30 p-2 rounded border break-all">
+                      {submitSuccess.value.transactionHash}
+                    </div>
+                    <a 
+                      href={`https://basescan.org/tx/${submitSuccess.value.transactionHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-1 text-sm text-green-400 hover:text-green-300 mt-1"
+                    >
+                      View on BaseScan
+                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+                      </svg>
+                    </a>
+                  </div>
+                )}
+                
+                {submitSuccess.value.reviewId && (
+                  <div>
+                    <a 
+                      href={`https://app.ethos.network/activity/review/${submitSuccess.value.reviewId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-1 text-sm text-green-400 hover:text-green-300"
+                    >
+                      View Review on Ethos
+                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+                      </svg>
+                    </a>
+                  </div>
+                )}
+              </div>
+              
+              <button
+                type="button"
+                onClick={() => submitSuccess.value = null}
+                class="mt-4 text-sm text-green-400 hover:text-green-300 underline"
+              >
+                Submit Another Review
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* You Section - Show when authenticated and reputable */}
       {reputationData.value?.authenticated && canSubmit && (
         <div>
