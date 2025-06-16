@@ -4,6 +4,7 @@
 
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
+import * as $api_auth_csrf from "./routes/api/auth/csrf.ts";
 import * as $api_auth_me from "./routes/api/auth/me.ts";
 import * as $api_auth_reputation from "./routes/api/auth/reputation.ts";
 import * as $api_joke from "./routes/api/joke.ts";
@@ -23,6 +24,7 @@ const manifest = {
   routes: {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
+    "./routes/api/auth/csrf.ts": $api_auth_csrf,
     "./routes/api/auth/me.ts": $api_auth_me,
     "./routes/api/auth/reputation.ts": $api_auth_reputation,
     "./routes/api/joke.ts": $api_joke,

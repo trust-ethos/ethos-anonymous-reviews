@@ -122,8 +122,10 @@ export function validateOrigin(request: Request): boolean {
   // Allow requests from same origin
   const allowedOrigins = [
     "http://localhost:8000",
-    "http://localhost:8001", 
-    "https://your-domain.com" // Add your production domain
+    "http://localhost:8001",
+    "http://localhost:3000", // Next.js dev server
+    "https://anon.ethos.network", // Production domain
+    "https://ethos-anon-reviews.deno.dev" // Backup deployment domain
   ];
   
   if (origin && allowedOrigins.includes(origin)) {

@@ -81,11 +81,30 @@ export default function ReviewForm() {
         sentiment: sentiment.value,
       });
 
+      // First, get CSRF token
+      console.log("🔄 Fetching CSRF token...");
+      const csrfResponse = await fetch("/api/auth/csrf", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!csrfResponse.ok) {
+        throw new Error("Failed to get CSRF token");
+      }
+
+      const csrfData = await csrfResponse.json();
+      console.log("✅ CSRF token received");
+
+      // Generate a unique nonce for this request
+      const requestNonce = crypto.randomUUID();
+
+      console.log("🔄 Submitting review with security tokens...");
       const response = await fetch('/api/reviews/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           profileId: selectedProfile.value.id,
           profileUsername: selectedProfile.value.username,
@@ -93,6 +112,8 @@ export default function ReviewForm() {
           title: reviewTitle.value,
           description: reviewDescription.value,
           sentiment: sentiment.value,
+          csrfToken: csrfData.csrfToken,
+          requestNonce: requestNonce,
         }),
       });
 
