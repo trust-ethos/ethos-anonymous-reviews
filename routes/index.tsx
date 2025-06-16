@@ -22,9 +22,25 @@ export default function Home() {
           </div>
 
           {/* Main Content */}
-          <div class="bg-neutral-900 border border-neutral-800 rounded-lg p-8">
-            <h2 class="text-2xl font-semibold mb-6">Submit Anonymous Review</h2>
-            <ReviewForm />
+          <div class="bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden">
+            {/* Atmospheric Header Image */}
+            <div class="relative h-32 bg-gradient-to-b from-neutral-800 to-neutral-900 overflow-hidden">
+              <img 
+                src="/anonymous-figure.jpg" 
+                alt="Anonymous figure in shadows"
+                class="w-full h-full object-cover object-center opacity-60"
+                style="filter: grayscale(20%) contrast(1.1);"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent"></div>
+              <div class="absolute bottom-4 left-6">
+                <h2 class="text-2xl font-semibold text-white drop-shadow-lg">Submit Anonymous Review</h2>
+              </div>
+            </div>
+            
+            {/* Form Content */}
+            <div class="p-8">
+              <ReviewForm />
+            </div>
           </div>
 
           {/* Footer */}
