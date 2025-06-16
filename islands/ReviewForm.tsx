@@ -71,7 +71,7 @@ export default function ReviewForm() {
       {/* Sentiment */}
       <div>
         <label class="block text-sm font-medium mb-2">
-          Overall Sentiment
+          Review Type
         </label>
         <div class="flex gap-2">
           {[
