@@ -177,7 +177,6 @@ export default function ReviewForm() {
               <h3 class="text-lg font-semibold text-green-300 mb-2">Review Submitted Successfully!</h3>
               <p class="text-green-200 mb-4">Your anonymous review has been recorded on the blockchain.</p>
               
-              {selectedProfile.value && (
                 <p class="text-green-200 mb-4">
                   You'll be able to see it on Ethos shortly under the{" "}
                   <a 
@@ -190,7 +189,6 @@ export default function ReviewForm() {
                   </a>{" "}
                   profile.
                 </p>
-              )}
               
               <div class="space-y-3">
                 {submitSuccess.value.transactionHash && (
