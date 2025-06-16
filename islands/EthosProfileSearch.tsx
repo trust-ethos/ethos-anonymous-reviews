@@ -133,32 +133,32 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
   return (
     <div class="relative">
       {/* Selected Profile Display */}
-      {selectedProfile.value && (
+      {selectedProfile?.value && (
         <div class="mb-4 p-3 bg-neutral-800 border border-neutral-700 rounded-md">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center text-sm font-medium overflow-hidden">
-                {selectedProfile.value.avatarUrl ? (
+                {selectedProfile?.value?.avatarUrl ? (
                   <img 
-                    src={selectedProfile.value.avatarUrl} 
-                    alt={selectedProfile.value.username}
+                    src={selectedProfile?.value?.avatarUrl} 
+                    alt={selectedProfile?.value?.username}
                     class="w-full h-full object-cover"
                   />
                 ) : (
-                  selectedProfile.value.username.charAt(0).toUpperCase()
+                  selectedProfile?.value?.username?.charAt(0).toUpperCase()
                 )}
               </div>
               <div>
-                <div class="font-medium">{selectedProfile.value.displayName || `@${selectedProfile.value.username}`}</div>
-                <div class="text-xs text-neutral-400">@{selectedProfile.value.username}</div>
-                <div class={`text-xs ${getScoreColor(selectedProfile.value.score)}`}>
-                  {selectedProfile.value.score} - {getScoreLabel(selectedProfile.value.score)}
+                <div class="font-medium">{selectedProfile?.value?.displayName || `@${selectedProfile?.value?.username}`}</div>
+                <div class="text-xs text-neutral-400">@{selectedProfile?.value?.username}</div>
+                <div class={`text-xs ${getScoreColor(selectedProfile?.value?.score || 0)}`}>
+                  {selectedProfile?.value?.score} - {getScoreLabel(selectedProfile?.value?.score || 0)}
                 </div>
               </div>
             </div>
             <button
               type="button"
-              onClick={() => selectedProfile.value = null}
+              onClick={() => selectedProfile && (selectedProfile.value = null)}
               class="text-neutral-400 hover:text-neutral-200 text-sm"
             >
               ✕
@@ -168,7 +168,7 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
       )}
 
       {/* Search Input */}
-      {!selectedProfile.value && (
+      {!selectedProfile?.value && (
         <div class="relative">
           <input
             type="text"
