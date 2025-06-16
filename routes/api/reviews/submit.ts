@@ -268,7 +268,7 @@ export const handler: Handlers = {
         subjectAddress: "0x0000000000000000000000000000000000000000", // Zero address - using attestation instead
         comment: body.title,
         description: body.description,
-        reviewerUsername: "kairosAgent", // Static agent username for anonymous reviews
+        reviewerUsername: session.user.username,
         subjectXAccountId: xAccountId, // Add X account ID for attestation
         reviewerReputationLevel: reviewerReputationLevel // Add reputation level for anonymous disclaimer
       };

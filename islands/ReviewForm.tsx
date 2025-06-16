@@ -181,12 +181,12 @@ export default function ReviewForm() {
                 <p class="text-green-200 mb-4">
                   You'll be able to see it on Ethos shortly under the{" "}
                   <a 
-                    href={`https://app.ethos.network/profile/x/${selectedProfile.value.username}`}
+                    href={`https://app.ethos.network/profile/x/kairosAgent`}
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-green-300 hover:text-green-200 underline"
                   >
-                    {selectedProfile.value.username}
+                    kairosAgent
                   </a>{" "}
                   profile.
                 </p>
