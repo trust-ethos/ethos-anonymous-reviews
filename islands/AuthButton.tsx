@@ -73,7 +73,6 @@ export default function AuthButton() {
           )}
           <div class="text-sm">
             <div class="font-medium">@{user.value.username}</div>
-            <div class="text-neutral-400 text-xs">{user.value.name}</div>
           </div>
         </div>
         <button
