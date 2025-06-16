@@ -63,11 +63,25 @@ export default function ReviewForm() {
     checkReputation();
   }, []);
 
+  // Check if user is trying to review themselves
+  const isReviewingSelf = () => {
+    if (!reputationData.value?.authenticated || !reputationData.value?.user || !selectedProfile.value) {
+      return false;
+    }
+    return reputationData.value.user.username.toLowerCase() === selectedProfile.value.username.toLowerCase();
+  };
+
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
     
     if (!selectedProfile.value || !reviewTitle.value.trim() || !reviewDescription.value.trim() || !sentiment.value) {
       alert("Please fill in all fields before submitting.");
+      return;
+    }
+
+    // Prevent self-review
+    if (isReviewingSelf()) {
+      alert("You cannot leave a review for yourself.");
       return;
     }
 
@@ -133,6 +147,7 @@ export default function ReviewForm() {
 
   const canSubmit = reputationData.value?.reputation?.canSubmit ?? false;
   const submitDisabledReason = reputationData.value?.reputation?.reason || reputationData.value?.reason;
+  const isSelfReview = isReviewingSelf();
 
   return (
     <form onSubmit={handleSubmit} class="space-y-6">
@@ -187,6 +202,20 @@ export default function ReviewForm() {
           selectedProfile={selectedProfile}
           onProfileSelect={(profile) => selectedProfile.value = profile}
         />
+        
+        {/* Self-review warning */}
+        {isSelfReview && (
+          <div class="mt-2 p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-md">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+              </svg>
+              <div class="text-sm text-yellow-300">
+                You cannot leave a review for yourself (@{selectedProfile.value?.username}).
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Sentiment */}
@@ -265,10 +294,13 @@ export default function ReviewForm() {
           !reviewDescription.value.trim() || 
           !sentiment.value ||
           (reputationData.value?.authenticated && !canSubmit) ||
-          !reputationData.value?.authenticated
+          !reputationData.value?.authenticated ||
+          isSelfReview
         }
         class={`w-full px-4 py-2 rounded-md font-medium transition-colors ${
-          (reputationData.value?.authenticated && !canSubmit)
+          isSelfReview
+            ? "bg-yellow-900 text-yellow-300 cursor-not-allowed"
+            : (reputationData.value?.authenticated && !canSubmit)
             ? "bg-red-900 text-red-300 cursor-not-allowed"
             : !reputationData.value?.authenticated
             ? "bg-neutral-700 text-neutral-400 cursor-not-allowed"
@@ -277,6 +309,8 @@ export default function ReviewForm() {
       >
         {isSubmitting.value 
           ? "Submitting..." 
+          : isSelfReview
+          ? "Cannot review yourself"
           : !reputationData.value?.authenticated
           ? "Please login"
           : (reputationData.value?.authenticated && !canSubmit)
@@ -285,8 +319,15 @@ export default function ReviewForm() {
         }
       </button>
 
+      {/* Self-review Error Message */}
+      {isSelfReview && (
+        <div class="text-xs text-yellow-400 text-center">
+          You cannot leave a review for your own profile.
+        </div>
+      )}
+
       {/* Reputation Error Message */}
-      {reputationData.value?.authenticated && !canSubmit && submitDisabledReason && (
+      {reputationData.value?.authenticated && !canSubmit && !isSelfReview && submitDisabledReason && (
         <div class="text-xs text-red-400 text-center">
           {submitDisabledReason}
         </div>
