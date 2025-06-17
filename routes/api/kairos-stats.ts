@@ -29,7 +29,7 @@ const KAIROS_FALLBACK_STATS = {
   reviewCount: 42,
   vouchCount: 15,
   attestationCount: 8,
-  xpTotal: 2500,
+  vouchAmountEth: "2.5", // Vouch amount in ETH
   profileUrl: "https://app.ethos.network/profile/x/kairosagent",
   avatarUrl: "https://pbs.twimg.com/profile_images/1934487333446832128/xN50ioZ4.jpg"
 };
@@ -76,7 +76,7 @@ export const handler: Handlers = {
         reviewCount: userData.stats?.reviewCount || 0,
         vouchCount: userData.stats?.vouchCount || 0,
         attestationCount: userData.stats?.attestationCount || 0,
-        xpTotal: userData.xpTotal || 0,
+        vouchAmountEth: "0.0", // TODO: Extract from actual vouch data when available
         profileUrl: `https://app.ethos.network/profile/x/${userData.username}`,
         avatarUrl: "https://pbs.twimg.com/profile_images/1934487333446832128/xN50ioZ4.jpg"
       };

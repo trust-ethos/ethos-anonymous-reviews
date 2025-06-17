@@ -9,7 +9,7 @@ interface KairosStats {
   reviewCount: number;
   vouchCount: number;
   attestationCount: number;
-  xpTotal: number;
+  vouchAmountEth: string;
   profileUrl: string;
   avatarUrl: string;
 }
@@ -133,8 +133,8 @@ export default function KairosAgentSidebar() {
         </div>
         
         <div class="bg-neutral-800/50 rounded p-3 text-center">
-          <div class="text-lg font-bold text-neutral-300">{stats.value.xpTotal}</div>
-          <div class="text-xs text-neutral-400">Total XP</div>
+          <div class="text-lg font-bold text-neutral-300">{stats.value.vouchAmountEth} ETH</div>
+          <div class="text-xs text-neutral-400">Vouch Amount</div>
         </div>
       </div>
 
