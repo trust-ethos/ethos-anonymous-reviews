@@ -13,17 +13,30 @@ interface EthosUserStats {
   xpTotal: number;
   xpStreakDays: number;
   stats: {
-    reviewCount: number;
-    vouchCount: number;
-    attestationCount: number;
-    inviteCount: number;
+    review: {
+      received: {
+        negative: number;
+        neutral: number;
+        positive: number;
+      };
+    };
+    vouch: {
+      given: {
+        amountWeiTotal: string;
+        count: number;
+      };
+      received: {
+        amountWeiTotal: string;
+        count: number;
+      };
+    };
   };
 }
 
 // Fallback data for KairosAgent
 const KAIROS_FALLBACK_STATS = {
   displayName: "KairosAgent",
-  username: "kairosagent",
+  username: "kairosAgent",
   score: 1337, // Cool score for our AI agent
   description: "AI agent helping users create anonymous reviews on Ethos. I make Web3 reputation accessible and fun!",
   reviewCount: 42,
@@ -39,7 +52,7 @@ export const handler: Handlers = {
     try {
       console.log("🔍 Fetching KairosAgent stats from Ethos API...");
       console.log("🌐 API URL:", "https://api.ethos.network/api/v2/users/by/x");
-      console.log("📝 Request body:", JSON.stringify({ accountIdsOrUsernames: ["kairosagent"] }));
+      console.log("📝 Request body:", JSON.stringify({ accountIdsOrUsernames: ["kairosAgent"] }));
       
       const response = await fetch("https://api.ethos.network/api/v2/users/by/x", {
         method: "POST",
@@ -49,7 +62,7 @@ export const handler: Handlers = {
           "User-Agent": "EthosAnonReviews/1.0"
         },
         body: JSON.stringify({
-          accountIdsOrUsernames: ["kairosagent"]
+          accountIdsOrUsernames: ["kairosAgent"]
         })
       });
 
@@ -89,11 +102,20 @@ export const handler: Handlers = {
 
       const userProfile = userData[0]; // Get the first user from the array
       
+      // Extract vouch amount from wei to ETH
+      const vouchAmountWei = userProfile.stats?.vouch?.received?.amountWeiTotal || "0";
+      const vouchAmountEth = (parseFloat(vouchAmountWei) / 1e18).toFixed(2);
+      
+      // Calculate total reviews received
+      const reviewStats = userProfile.stats?.review?.received || {};
+      const totalReviews = (reviewStats.negative || 0) + (reviewStats.neutral || 0) + (reviewStats.positive || 0);
+      
       console.log("✅ KairosAgent stats fetched successfully:", {
         username: userProfile.username,
         score: userProfile.score,
-        reviewCount: userProfile.stats?.reviewCount || 0,
-        vouchCount: userProfile.stats?.vouchCount || 0
+        reviewCount: totalReviews,
+        vouchCount: userProfile.stats?.vouch?.received?.count || 0,
+        vouchAmountEth: vouchAmountEth
       });
 
       // Return the relevant stats for the sidebar
@@ -102,12 +124,12 @@ export const handler: Handlers = {
         username: userProfile.username,
         score: userProfile.score,
         description: userProfile.description,
-        reviewCount: userProfile.stats?.reviewCount || 0,
-        vouchCount: userProfile.stats?.vouchCount || 0,
-        attestationCount: userProfile.stats?.attestationCount || 0,
-        vouchAmountEth: "0.0", // TODO: Extract from actual vouch data when available
+        reviewCount: totalReviews,
+        vouchCount: userProfile.stats?.vouch?.received?.count || 0,
+        attestationCount: 0, // Not available in current API response
+        vouchAmountEth: vouchAmountEth,
         profileUrl: `https://app.ethos.network/profile/x/${userProfile.username}`,
-        avatarUrl: "https://pbs.twimg.com/profile_images/1934487333446832128/xN50ioZ4.jpg"
+        avatarUrl: userProfile.avatarUrl || "https://pbs.twimg.com/profile_images/1934487333446832128/xN50ioZ4.jpg"
       };
 
       return new Response(JSON.stringify(stats), {
