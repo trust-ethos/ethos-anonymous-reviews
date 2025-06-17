@@ -68,7 +68,7 @@ export function getBlockchainConfig(): BlockchainConfig {
 }
 
 export interface ReviewData {
-  score: number; // 1-5 rating
+  score: number; // 0-2 sentiment score (0=negative, 1=neutral, 2=positive)
   subjectAddress: string; // Ethereum address (can be zero address when using attestation)
   comment: string; // Short review title
   description: string; // Detailed review description
@@ -128,8 +128,8 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
     service: "x.com"
   };
   
-  // Convert score to uint8 (1-5 scale)
-  const score = Math.max(1, Math.min(5, reviewData.score));
+  // Convert score to uint8 (0-2 scale for sentiment: 0=negative, 1=neutral, 2=positive)
+  const score = Math.max(0, Math.min(2, reviewData.score));
   
   try {
     console.log("🔗 Submitting review to blockchain with parameters:", {

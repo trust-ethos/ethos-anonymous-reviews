@@ -264,8 +264,15 @@ export const handler: Handlers = {
       }
 
       // 12. Prepare review data for blockchain submission
+      const sentimentScore = sentimentToScore(body.sentiment);
+      console.log("🎯 Sentiment mapping:", {
+        originalSentiment: body.sentiment,
+        mappedScore: sentimentScore,
+        mapping: "negative=0, neutral=1, positive=2"
+      });
+      
       const reviewData: ReviewData = {
-        score: sentimentToScore(body.sentiment),
+        score: sentimentScore,
         subjectAddress: "0x0000000000000000000000000000000000000000", // Zero address - using attestation instead
         comment: body.title,
         description: body.description,
