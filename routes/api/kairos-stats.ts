@@ -38,13 +38,19 @@ export const handler: Handlers = {
   async GET(_req) {
     try {
       console.log("🔍 Fetching KairosAgent stats from Ethos API...");
-      console.log("🌐 API URL:", "https://api.ethos.network/api/v2/users/by/x/kairosagent");
+      console.log("🌐 API URL:", "https://api.ethos.network/api/v2/users/by/x");
+      console.log("📝 Request body:", JSON.stringify({ accountIdsOrUsernames: ["kairosagent"] }));
       
-      const response = await fetch("https://api.ethos.network/api/v2/users/by/x/kairosagent", {
+      const response = await fetch("https://api.ethos.network/api/v2/users/by/x", {
+        method: "POST",
         headers: {
           "Accept": "application/json",
+          "Content-Type": "application/json",
           "User-Agent": "EthosAnonReviews/1.0"
-        }
+        },
+        body: JSON.stringify({
+          accountIdsOrUsernames: ["kairosagent"]
+        })
       });
 
       console.log("📡 Response status:", response.status, response.statusText);
@@ -64,26 +70,43 @@ export const handler: Handlers = {
         });
       }
 
-      const userData: EthosUserStats = await response.json();
+      const userData: EthosUserStats[] = await response.json();
+      
+      console.log("✅ KairosAgent API response:", userData);
+
+      // Check if we got any results
+      if (!userData || userData.length === 0) {
+        console.log("❌ No KairosAgent profile found in Ethos API response");
+        console.log("📦 Using fallback stats for KairosAgent");
+        
+        return new Response(JSON.stringify(KAIROS_FALLBACK_STATS), {
+          headers: { 
+            "Content-Type": "application/json",
+            "Cache-Control": "public, max-age=300" // Cache for 5 minutes
+          },
+        });
+      }
+
+      const userProfile = userData[0]; // Get the first user from the array
       
       console.log("✅ KairosAgent stats fetched successfully:", {
-        username: userData.username,
-        score: userData.score,
-        reviewCount: userData.stats?.reviewCount || 0,
-        vouchCount: userData.stats?.vouchCount || 0
+        username: userProfile.username,
+        score: userProfile.score,
+        reviewCount: userProfile.stats?.reviewCount || 0,
+        vouchCount: userProfile.stats?.vouchCount || 0
       });
 
       // Return the relevant stats for the sidebar
       const stats = {
-        displayName: userData.displayName,
-        username: userData.username,
-        score: userData.score,
-        description: userData.description,
-        reviewCount: userData.stats?.reviewCount || 0,
-        vouchCount: userData.stats?.vouchCount || 0,
-        attestationCount: userData.stats?.attestationCount || 0,
+        displayName: userProfile.displayName,
+        username: userProfile.username,
+        score: userProfile.score,
+        description: userProfile.description,
+        reviewCount: userProfile.stats?.reviewCount || 0,
+        vouchCount: userProfile.stats?.vouchCount || 0,
+        attestationCount: userProfile.stats?.attestationCount || 0,
         vouchAmountEth: "0.0", // TODO: Extract from actual vouch data when available
-        profileUrl: `https://app.ethos.network/profile/x/${userData.username}`,
+        profileUrl: `https://app.ethos.network/profile/x/${userProfile.username}`,
         avatarUrl: "https://pbs.twimg.com/profile_images/1934487333446832128/xN50ioZ4.jpg"
       };
 
