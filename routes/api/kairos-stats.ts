@@ -38,6 +38,7 @@ export const handler: Handlers = {
   async GET(_req) {
     try {
       console.log("🔍 Fetching KairosAgent stats from Ethos API...");
+      console.log("🌐 API URL:", "https://api.ethos.network/api/v2/users/by/x/kairosagent");
       
       const response = await fetch("https://api.ethos.network/api/v2/users/by/x/kairosagent", {
         headers: {
@@ -46,8 +47,13 @@ export const handler: Handlers = {
         }
       });
 
+      console.log("📡 Response status:", response.status, response.statusText);
+      console.log("📄 Response headers:", Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
+        const responseText = await response.text();
         console.error("❌ Failed to fetch KairosAgent stats:", response.status, response.statusText);
+        console.error("❌ Response body:", responseText);
         console.log("📦 Using fallback stats for KairosAgent");
         
         return new Response(JSON.stringify(KAIROS_FALLBACK_STATS), {

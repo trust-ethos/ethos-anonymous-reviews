@@ -195,18 +195,17 @@ export default function ReviewForm() {
             <div class="flex-1">
               <h3 class="text-lg font-semibold text-green-300 mb-2">Review Confirmed on Blockchain!</h3>
               <p class="text-green-200 mb-4">
-                {submitSuccess.value.message || "Your anonymous review has been confirmed on the blockchain."}
+                Review submitted and confirmed! You can view it on Ethos.
               </p>
               
-              {/* Direct Review Link - Most Prominent */}
+              {/* Direct Review Link */}
               {(submitSuccess.value.reviewId || submitSuccess.value.links?.ethosReview) && (
-                <div class="mb-4 p-4 bg-green-800/30 border border-green-600/50 rounded-lg">
-                  <div class="text-sm font-medium text-green-300 mb-2">🎉 Review Published!</div>
+                <div class="mb-4">
                   <a 
                     href={submitSuccess.value.links?.ethosReview || `https://app.ethos.network/activity/review/${submitSuccess.value.reviewId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="inline-flex items-center gap-2 text-green-300 hover:text-green-200 font-medium text-base"
+                    class="inline-flex items-center gap-2 text-green-300 hover:text-green-200 font-medium text-base underline"
                   >
                     View Your Review on Ethos
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -214,21 +213,6 @@ export default function ReviewForm() {
                     </svg>
                   </a>
                 </div>
-              )}
-              
-              {submitSuccess.value.profileUsername && (
-                <p class="text-green-200 mb-4">
-                  You can also view it on{" "}
-                  <a 
-                    href={`https://app.ethos.network/profile/x/${submitSuccess.value.profileUsername}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-green-300 hover:text-green-200 underline"
-                  >
-                    @{submitSuccess.value.profileUsername}
-                  </a>
-                  's profile.
-                </p>
               )}
               
               <div class="space-y-3">
