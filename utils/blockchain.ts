@@ -35,14 +35,14 @@ const REVIEW_CONTRACT_ABI = [
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": true, "internalType": "uint256", "name": "reviewId", "type": "uint256" },
-      { "indexed": true, "internalType": "address", "name": "author", "type": "address" },
-      { "indexed": true, "internalType": "address", "name": "subject", "type": "address" },
       { "indexed": false, "internalType": "uint8", "name": "score", "type": "uint8" },
-      { "indexed": false, "internalType": "string", "name": "comment", "type": "string" },
-      { "indexed": false, "internalType": "string", "name": "metadata", "type": "string" }
+      { "indexed": true, "internalType": "address", "name": "author", "type": "address" },
+      { "indexed": true, "internalType": "bytes32", "name": "attestationHash", "type": "bytes32" },
+      { "indexed": true, "internalType": "address", "name": "subject", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "reviewId", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "profileId", "type": "uint256" }
     ],
-    "name": "ReviewAdded",
+    "name": "ReviewCreated",
     "type": "event"
   }
 ];
@@ -163,11 +163,11 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
     let reviewId: number | undefined;
     
     try {
-      console.log("🔍 Parsing transaction logs for ReviewAdded event...");
+      console.log("🔍 Parsing transaction logs for ReviewCreated event...");
       console.log("Total logs in receipt:", receipt.logs.length);
       
       // Calculate expected event signature hash for debugging
-      const eventSignature = "ReviewAdded(uint256,address,address,uint8,string,string)";
+      const eventSignature = "ReviewCreated(uint8,address,bytes32,address,uint256,uint256)";
       console.log("🎯 Expected event signature:", eventSignature);
       console.log("🔑 Contract interface events:", contract.interface.fragments.filter(f => f.type === 'event').map(e => e.format()));
       
@@ -193,15 +193,16 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
               signature: parsedLog?.signature
             });
             
-            if (parsedLog && parsedLog.name === 'ReviewAdded') {
+            if (parsedLog && parsedLog.name === 'ReviewCreated') {
               reviewId = parseInt(parsedLog.args.reviewId.toString());
-              console.log("✅ Review ID successfully extracted from event:", reviewId);
+              console.log("✅ Review ID successfully extracted from ReviewCreated event:", reviewId);
               console.log("📊 Event details:", {
                 reviewId: reviewId,
                 author: parsedLog.args.author,
+                attestationHash: parsedLog.args.attestationHash,
                 subject: parsedLog.args.subject,
                 score: parsedLog.args.score.toString(),
-                comment: parsedLog.args.comment
+                profileId: parsedLog.args.profileId.toString()
               });
               break; // Found the event, stop searching
             } else if (parsedLog) {
@@ -216,7 +217,7 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
       }
       
       if (!reviewId) {
-        console.log("⚠️ No ReviewAdded event found in transaction receipt");
+        console.log("⚠️ No ReviewCreated event found in transaction receipt");
         console.log("📋 Available logs:", receipt.logs.map((log: any) => ({
           address: log.address,
           topics: log.topics
