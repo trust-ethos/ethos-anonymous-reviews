@@ -122,9 +122,10 @@ export async function sendReviewNotification(data: ReviewNotificationData): Prom
     const embed = createReviewEmbed(data);
     const profileUrl = `https://app.ethos.network/profile/x/${data.targetUsername}`;
     
-    // Include profile link in main content for Discord to unfurl/preview
+    // Put the URL on its own line for better Discord unfurling
+    // Discord unfurling works better when the URL is separated and not formatted as markdown
     const payload: DiscordWebhookPayload = {
-      content: `📋 **New Anonymous Review for:** ${profileUrl}`,
+      content: `📋 **New Anonymous Review for @${data.targetUsername}**\n\n${profileUrl}`,
       embeds: [embed]
     };
 
@@ -170,7 +171,7 @@ export async function testDiscordWebhook(): Promise<boolean> {
     title: "Test Review Notification",
     description: "This is a test notification to verify Discord webhook configuration. The profile link above should unfurl to show a nice card preview of the reviewed person's Ethos profile.",
     reviewerReputationLevel: "reputable",
-    targetUsername: "testuser", // This would be the person being reviewed (the target)
+    targetUsername: "kairosagent", // Using a real Ethos profile that should have proper metadata
     transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
     reviewId: "123"
   };
