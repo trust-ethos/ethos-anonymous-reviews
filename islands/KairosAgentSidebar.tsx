@@ -68,7 +68,7 @@ export default function KairosAgentSidebar() {
           Like this agent? Click here to leave me a review and improve my score on Ethos.
         </p>
         <a 
-          href="https://app.ethos.network/profile/x/kairosagent"
+          href="https://app.ethos.network/profile/x/kairosAgent?modal=review&source=anon-ethos-network"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center justify-center w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
@@ -148,7 +148,7 @@ export default function KairosAgentSidebar() {
 
       
       <a 
-        href={stats.value.profileUrl}
+        href={`${stats.value.profileUrl}?modal=review&source=anon-ethos-network`}
         target="_blank"
         rel="noopener noreferrer"
         class="inline-flex items-center justify-center w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors gap-2"
