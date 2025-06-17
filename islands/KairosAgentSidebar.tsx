@@ -80,17 +80,19 @@ export default function KairosAgentSidebar() {
   }
 
   const getScoreColor = (score: number) => {
-    if (score >= 1200) return "text-green-400";
-    if (score >= 800) return "text-blue-400";
-    if (score >= 400) return "text-yellow-400";
+    if (score >= 2000) return "text-green-400";
+    if (score >= 1600) return "text-blue-400";
+    if (score >= 1200) return "text-gray-400";
+    if (score >= 800) return "text-yellow-400";
     return "text-red-400";
   };
 
   const getScoreLabel = (score: number) => {
-    if (score >= 1200) return "Exemplary";
-    if (score >= 800) return "Reputable";
-    if (score >= 400) return "Neutral";
-    return "Low";
+    if (score >= 2000) return "Exemplary";
+    if (score >= 1600) return "Reputable";
+    if (score >= 1200) return "Neutral";
+    if (score >= 800) return "Questionable";
+    return "Untrusted";
   };
 
   return (
