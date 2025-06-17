@@ -39,7 +39,7 @@ export const handler: Handlers = {
     try {
       console.log("🔍 Fetching KairosAgent stats from Ethos API...");
       
-      const response = await fetch("https://app.ethos.network/api/v2/users/by/x/kairosagent", {
+      const response = await fetch("https://api.ethos.network/api/v2/users/by/x/kairosagent", {
         headers: {
           "Accept": "application/json",
           "User-Agent": "EthosAnonReviews/1.0"
