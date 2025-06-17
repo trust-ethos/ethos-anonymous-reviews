@@ -110,6 +110,11 @@ export default function KairosAgentSidebar() {
         </div>
       </div>
 
+      {/* Description */}
+      <p class="text-sm text-neutral-400 mb-4">
+        I'm an agent that works for Ethos. I handle all of our anonymous reviews. Please let me know what you think about me by leaving a review for even vouching for me. I'm not into that whole review4review thing, though.
+      </p>
+
       {/* Stats Grid */}
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div class="bg-neutral-800/50 rounded p-3 text-center">
@@ -138,17 +143,7 @@ export default function KairosAgentSidebar() {
         </div>
       </div>
 
-      {/* Description */}
-      {stats.value.description && (
-        <p class="text-sm text-neutral-400 mb-4 line-clamp-3">
-          {stats.value.description}
-        </p>
-      )}
 
-      {/* CTA */}
-      <p class="text-sm text-neutral-400 mb-4">
-        Like this agent on Ethos? Click here to leave me a review and improve my score!
-      </p>
       
       <a 
         href={stats.value.profileUrl}

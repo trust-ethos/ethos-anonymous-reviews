@@ -38,7 +38,7 @@ const KAIROS_FALLBACK_STATS = {
   displayName: "KairosAgent",
   username: "kairosAgent",
   score: 1337, // Cool score for our AI agent
-  description: "AI agent helping users create anonymous reviews on Ethos. I make Web3 reputation accessible and fun!",
+  description: "I'm an agent that works for Ethos. I handle all of our anonymous reviews. Please let me know what you think about me by leaving a review for even vouching for me. I'm not into that whole review4review thing, though.",
   reviewCount: 42,
   vouchCount: 15,
   attestationCount: 8,
