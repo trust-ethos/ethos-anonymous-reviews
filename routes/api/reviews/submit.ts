@@ -290,10 +290,15 @@ export const handler: Handlers = {
         securityChecks: "✅ All passed"
       });
 
-      // 13. Submit to blockchain
+      // 13. Submit to blockchain and wait for confirmation
+      console.log("🔗 Submitting review to blockchain, this may take 30-60 seconds...");
       const result: ReviewSubmissionResult = await submitReview(reviewData);
 
-      console.log("✅ Secure review submitted successfully:", result.transactionHash);
+      console.log("✅ Review confirmed on blockchain:", {
+        transactionHash: result.transactionHash,
+        reviewId: result.reviewId,
+        hasReviewId: !!result.reviewId
+      });
 
       // Send Discord notification (non-blocking)
       sendReviewNotification({
@@ -308,12 +313,26 @@ export const handler: Handlers = {
         console.error("⚠️ Discord notification failed (non-critical):", error);
       });
 
-      return new Response(JSON.stringify({ 
+      // Create response with review links
+      const response: any = {
         success: true, 
         transactionHash: result.transactionHash,
         reviewId: result.reviewId,
-        message: "Review submitted successfully to blockchain"
-      }), {
+        message: "Review submitted and confirmed on blockchain",
+        links: {
+          basescan: `https://basescan.org/tx/${result.transactionHash}`
+        }
+      };
+
+      // Add Ethos review link if we have the review ID
+      if (result.reviewId) {
+        response.links.ethosReview = `https://app.ethos.network/activity/review/${result.reviewId}`;
+        response.message = "Review submitted and confirmed! You can view it on Ethos.";
+      } else {
+        response.message = "Review submitted and confirmed on blockchain. Review ID will be available shortly on Ethos.";
+      }
+
+      return new Response(JSON.stringify(response), {
         headers: { "Content-Type": "application/json" },
       });
 

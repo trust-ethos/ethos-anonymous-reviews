@@ -119,7 +119,7 @@ export default function ReviewForm() {
       const csrfData = await csrfResponse.json();
       const csrfToken = csrfData.csrfToken;
       
-      console.log("Submitting review to blockchain:", {
+      console.log("Submitting review to blockchain (this may take 30-60 seconds):", {
         profile: selectedProfile.value,
         title: reviewTitle.value,
         description: reviewDescription.value,
@@ -146,12 +146,15 @@ export default function ReviewForm() {
       const result = await response.json();
 
       if (response.ok) {
-        console.log("✅ Review submitted successfully:", result);
+        console.log("✅ Review confirmed on blockchain:", result);
         
-        // Show success notification
+        // Show success notification with enhanced data
         submitSuccess.value = {
           transactionHash: result.transactionHash,
-          reviewId: result.reviewId
+          reviewId: result.reviewId,
+          profileUsername: selectedProfile.value.username,
+          message: result.message,
+          links: result.links
         };
         
         // Reset form
@@ -190,21 +193,25 @@ export default function ReviewForm() {
               </svg>
             </div>
             <div class="flex-1">
-              <h3 class="text-lg font-semibold text-green-300 mb-2">Review Submitted Successfully!</h3>
-              <p class="text-green-200 mb-4">Your anonymous review has been recorded on the blockchain.</p>
+              <h3 class="text-lg font-semibold text-green-300 mb-2">Review Confirmed on Blockchain!</h3>
+              <p class="text-green-200 mb-4">
+                {submitSuccess.value.message || "Your anonymous review has been confirmed on the blockchain."}
+              </p>
               
+              {submitSuccess.value.profileUsername && (
                 <p class="text-green-200 mb-4">
-                  You'll be able to see it on Ethos shortly under the{" "}
+                  You can view it on{" "}
                   <a 
-                    href={`https://app.ethos.network/profile/x/kairosAgent`}
+                    href={`https://app.ethos.network/profile/x/${submitSuccess.value.profileUsername}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-green-300 hover:text-green-200 underline"
                   >
-                    kairosAgent
-                  </a>{" "}
-                  profile.
+                    @{submitSuccess.value.profileUsername}
+                  </a>
+                  's profile on Ethos.
                 </p>
+              )}
               
               <div class="space-y-3">
                 {submitSuccess.value.transactionHash && (
@@ -214,7 +221,7 @@ export default function ReviewForm() {
                       {submitSuccess.value.transactionHash}
                     </div>
                     <a 
-                      href={`https://basescan.org/tx/${submitSuccess.value.transactionHash}`}
+                      href={submitSuccess.value.links?.basescan || `https://basescan.org/tx/${submitSuccess.value.transactionHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       class="inline-flex items-center gap-1 text-sm text-green-400 hover:text-green-300 mt-1"
@@ -227,10 +234,10 @@ export default function ReviewForm() {
                   </div>
                 )}
                 
-                {submitSuccess.value.reviewId && (
+                {(submitSuccess.value.reviewId || submitSuccess.value.links?.ethosReview) && (
                   <div>
                     <a 
-                      href={`https://app.ethos.network/activity/review/${submitSuccess.value.reviewId}`}
+                      href={submitSuccess.value.links?.ethosReview || `https://app.ethos.network/activity/review/${submitSuccess.value.reviewId}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       class="inline-flex items-center gap-1 text-sm text-green-400 hover:text-green-300"
@@ -421,7 +428,7 @@ export default function ReviewForm() {
         }`}
       >
         {isSubmitting.value 
-          ? "Submitting..." 
+          ? "Confirming on blockchain..." 
           : isSelfReview
           ? "Cannot review yourself"
           : !reputationData.value?.authenticated

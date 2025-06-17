@@ -153,37 +153,57 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
       attestationDetails
     );
     
-    console.log("Transaction submitted:", tx.hash);
+    console.log("📝 Transaction submitted, waiting for confirmation...", tx.hash);
     
-    // Wait for confirmation
-    const receipt = await tx.wait();
-    console.log("Transaction confirmed:", receipt.hash);
+    // Wait for confirmation with timeout (max 5 minutes)
+    const receipt = await tx.wait(3); // Wait for 3 confirmations for reliability
+    console.log("✅ Transaction confirmed with", receipt.confirmations, "confirmations:", receipt.hash);
     
-    // Parse events to extract review ID
+    // Parse events to extract review ID with improved error handling
     let reviewId: number | undefined;
     
     try {
-      // Look for ReviewAdded event in the transaction receipt
-      const reviewAddedEvent = receipt.logs.find((log: any) => {
-        try {
-          const parsedLog = contract.interface.parseLog(log);
-          return parsedLog?.name === 'ReviewAdded';
-        } catch {
-          return false;
-        }
-      });
+      console.log("🔍 Parsing transaction logs for ReviewAdded event...");
+      console.log("Total logs in receipt:", receipt.logs.length);
       
-             if (reviewAddedEvent) {
-         const parsedEvent = contract.interface.parseLog(reviewAddedEvent);
-         if (parsedEvent) {
-           reviewId = parseInt(parsedEvent.args.reviewId.toString());
-           console.log("✅ Review ID extracted from event:", reviewId);
-         }
-       } else {
+      // Look for ReviewAdded event in the transaction receipt
+      for (const log of receipt.logs) {
+        try {
+          // Only try to parse logs from our contract address
+          if (log.address.toLowerCase() === config.contractAddress.toLowerCase()) {
+            const parsedLog = contract.interface.parseLog({
+              topics: log.topics,
+              data: log.data
+            });
+            
+            if (parsedLog && parsedLog.name === 'ReviewAdded') {
+              reviewId = parseInt(parsedLog.args.reviewId.toString());
+              console.log("✅ Review ID successfully extracted from event:", reviewId);
+              console.log("📊 Event details:", {
+                reviewId: reviewId,
+                author: parsedLog.args.author,
+                subject: parsedLog.args.subject,
+                score: parsedLog.args.score.toString(),
+                comment: parsedLog.args.comment
+              });
+              break; // Found the event, stop searching
+            }
+          }
+        } catch (parseError) {
+          // Continue to next log if this one fails to parse
+          continue;
+        }
+      }
+      
+      if (!reviewId) {
         console.log("⚠️ No ReviewAdded event found in transaction receipt");
+        console.log("📋 Available logs:", receipt.logs.map((log: any) => ({
+          address: log.address,
+          topics: log.topics
+        })));
       }
     } catch (error) {
-      console.log("⚠️ Failed to parse review ID from events:", error);
+      console.error("❌ Failed to parse review ID from events:", error);
     }
     
     return {
