@@ -104,6 +104,40 @@ function createReviewEmbed(data: ReviewNotificationData): DiscordEmbed {
   return embed;
 }
 
+// Send simple Discord notification with just the review URL
+export async function sendSimpleDiscordNotification(reviewUrl: string): Promise<void> {
+  const webhookUrl = Deno.env.get("DISCORD_WEBHOOK_URL");
+  const enabled = Deno.env.get("ENABLE_DISCORD_NOTIFICATIONS") === "true";
+  
+  if (!enabled || !webhookUrl) {
+    console.log("📢 Discord notifications disabled or webhook URL not configured");
+    return;
+  }
+
+  const payload = {
+    content: reviewUrl
+  };
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Discord webhook failed: ${response.status} ${response.statusText}`);
+    }
+
+    console.log("✅ Simple Discord notification sent successfully");
+  } catch (error) {
+    console.error("❌ Failed to send Discord notification:", error);
+    throw error;
+  }
+}
+
 // Send Discord webhook notification
 export async function sendReviewNotification(data: ReviewNotificationData): Promise<boolean> {
   // Check if notifications are enabled

@@ -9,7 +9,7 @@ import {
   validateReviewContent,
   type SecureSession 
 } from "../../../utils/security.ts";
-import { sendReviewNotification } from "../../../utils/discord.ts";
+import { sendReviewNotification, sendSimpleDiscordNotification } from "../../../utils/discord.ts";
 
 interface TwitterSession {
   user: {
@@ -307,18 +307,17 @@ export const handler: Handlers = {
         hasReviewId: !!result.reviewId
       });
 
-      // Send Discord notification (non-blocking)
-      sendReviewNotification({
-        sentiment: body.sentiment,
-        title: body.title,
-        description: body.description,
-        reviewerReputationLevel: reviewerReputationLevel,
-        targetUsername: body.profileUsername,
-        transactionHash: result.transactionHash,
-        reviewId: result.reviewId?.toString()
-      }).catch(error => {
-        console.error("⚠️ Discord notification failed (non-critical):", error);
-      });
+      // Send Discord notification only if we have a review ID
+      if (result.reviewId) {
+        console.log("📢 Sending Discord notification with review ID:", result.reviewId);
+        const reviewUrl = `https://app.ethos.network/activity/review/${result.reviewId}`;
+        
+        sendSimpleDiscordNotification(reviewUrl).catch(error => {
+          console.error("⚠️ Discord notification failed (non-critical):", error);
+        });
+      } else {
+        console.log("⚠️ Skipping Discord notification - no review ID available");
+      }
 
       // Create response with review links
       const response: any = {
