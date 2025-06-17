@@ -9,6 +9,7 @@ import * as $api_auth_me from "./routes/api/auth/me.ts";
 import * as $api_auth_reputation from "./routes/api/auth/reputation.ts";
 import * as $api_discord_test from "./routes/api/discord/test.ts";
 import * as $api_joke from "./routes/api/joke.ts";
+import * as $api_kairos_stats from "./routes/api/kairos-stats.ts";
 import * as $api_reviews_submit from "./routes/api/reviews/submit.ts";
 import * as $auth_logout from "./routes/auth/logout.ts";
 import * as $auth_twitter from "./routes/auth/twitter.ts";
@@ -18,6 +19,7 @@ import * as $index from "./routes/index.tsx";
 import * as $AuthButton from "./islands/AuthButton.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $EthosProfileSearch from "./islands/EthosProfileSearch.tsx";
+import * as $KairosAgentSidebar from "./islands/KairosAgentSidebar.tsx";
 import * as $ReviewForm from "./islands/ReviewForm.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
@@ -30,6 +32,7 @@ const manifest = {
     "./routes/api/auth/reputation.ts": $api_auth_reputation,
     "./routes/api/discord/test.ts": $api_discord_test,
     "./routes/api/joke.ts": $api_joke,
+    "./routes/api/kairos-stats.ts": $api_kairos_stats,
     "./routes/api/reviews/submit.ts": $api_reviews_submit,
     "./routes/auth/logout.ts": $auth_logout,
     "./routes/auth/twitter.ts": $auth_twitter,
@@ -41,6 +44,7 @@ const manifest = {
     "./islands/AuthButton.tsx": $AuthButton,
     "./islands/Counter.tsx": $Counter,
     "./islands/EthosProfileSearch.tsx": $EthosProfileSearch,
+    "./islands/KairosAgentSidebar.tsx": $KairosAgentSidebar,
     "./islands/ReviewForm.tsx": $ReviewForm,
   },
   baseUrl: import.meta.url,

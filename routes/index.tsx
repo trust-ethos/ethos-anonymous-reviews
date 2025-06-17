@@ -1,6 +1,7 @@
 import { useSignal } from "@preact/signals";
 import ReviewForm from "../islands/ReviewForm.tsx";
 import AuthButton from "../islands/AuthButton.tsx";
+import KairosAgentSidebar from "../islands/KairosAgentSidebar.tsx";
 
 export default function Home() {
     return (
@@ -27,56 +28,66 @@ export default function Home() {
 
       {/* Main Content */}
       <div class="container mx-auto px-4 py-8">
-        <div class="max-w-2xl mx-auto">
-          {/* Header */}
+        <div class="max-w-7xl mx-auto">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Review Form */}
+            <div class="lg:col-span-2">
+              {/* Review Form Card */}
+              <div class="bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden">
+                {/* Atmospheric Header Image */}
+                <div class="relative h-48 bg-gradient-to-b from-neutral-800 to-neutral-900 overflow-hidden">
+                  <img 
+                    src="/anonymous-figure.png" 
+                    alt="Anonymous figure in shadows"
+                    class="w-full h-full object-cover object-center opacity-60"
+                    style="filter: grayscale(20%) contrast(1.1);"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent"></div>
+                  <div class="absolute top-6 left-6">
+                    <h2 class="text-2xl font-semibold text-white drop-shadow-lg">Submit anon Ethos review</h2>
+                    <p class="text-sm text-neutral-300 mt-2 max-w-md drop-shadow">
+                      Reputable or higher Ethos profiles can use this functionality to write reviews without revealing their identity. This app does not store any logs or information about who logs in or writes the reviews.
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Form Content */}
+                <div class="px-8 pb-8">
+                  <ReviewForm />
+                </div>
+              </div>
 
-          {/* Review Form Card */}
-          <div class="bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden">
-            {/* Atmospheric Header Image */}
-            <div class="relative h-48 bg-gradient-to-b from-neutral-800 to-neutral-900 overflow-hidden">
-              <img 
-                src="/anonymous-figure.png" 
-                alt="Anonymous figure in shadows"
-                class="w-full h-full object-cover object-center opacity-60"
-                style="filter: grayscale(20%) contrast(1.1);"
-              />
-              <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent"></div>
-              <div class="absolute top-6 left-6">
-                <h2 class="text-2xl font-semibold text-white drop-shadow-lg">Submit anon Ethos review</h2>
-                <p class="text-sm text-neutral-300 mt-2 max-w-md drop-shadow">
-                  Reputable or higher Ethos profiles can use this functionality to write reviews without revealing their identity. This app does not store any logs or information about who logs in or writes the reviews.
+              {/* Footer */}
+              <div class="mt-12 text-center text-neutral-500">
+                <p>
+                  Powered by{" "}
+                  <a 
+                    href="https://app.ethos.network" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="text-neutral-300 hover:text-neutral-100 underline"
+                  >
+                    Ethos
+                  </a>
+                  {" "}and{" "}
+                  <a 
+                    href="https://app.ethos.network/profile/x/kairosagent" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="text-neutral-300 hover:text-neutral-100 underline"
+                  >
+                    KairosAgent
+                  </a>
                 </p>
               </div>
             </div>
-            
-            {/* Form Content */}
-            <div class="px-8 pb-8">
-              <ReviewForm />
-            </div>
-          </div>
 
-          {/* Footer */}
-          <div class="mt-12 text-center text-neutral-500">
-            <p>
-              Powered by{" "}
-              <a 
-                href="https://app.ethos.network" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                class="text-neutral-300 hover:text-neutral-100 underline"
-              >
-                Ethos
-              </a>
-              {" "}and{" "}
-              <a 
-                href="https://app.ethos.network/profile/x/kairosagent" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                class="text-neutral-300 hover:text-neutral-100 underline"
-              >
-                KairosAgent
-              </a>
-            </p>
+            {/* Right Column - Sidebar */}
+            <div class="lg:col-span-1">
+              <div class="sticky top-24">
+                <KairosAgentSidebar />
+              </div>
+            </div>
           </div>
         </div>
       </div>
