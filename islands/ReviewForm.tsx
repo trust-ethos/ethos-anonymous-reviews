@@ -198,9 +198,27 @@ export default function ReviewForm() {
                 {submitSuccess.value.message || "Your anonymous review has been confirmed on the blockchain."}
               </p>
               
+              {/* Direct Review Link - Most Prominent */}
+              {(submitSuccess.value.reviewId || submitSuccess.value.links?.ethosReview) && (
+                <div class="mb-4 p-4 bg-green-800/30 border border-green-600/50 rounded-lg">
+                  <div class="text-sm font-medium text-green-300 mb-2">🎉 Review Published!</div>
+                  <a 
+                    href={submitSuccess.value.links?.ethosReview || `https://app.ethos.network/activity/review/${submitSuccess.value.reviewId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 text-green-300 hover:text-green-200 font-medium text-base"
+                  >
+                    View Your Review on Ethos
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+                    </svg>
+                  </a>
+                </div>
+              )}
+              
               {submitSuccess.value.profileUsername && (
                 <p class="text-green-200 mb-4">
-                  You can view it on{" "}
+                  You can also view it on{" "}
                   <a 
                     href={`https://app.ethos.network/profile/x/${submitSuccess.value.profileUsername}`}
                     target="_blank"
@@ -209,7 +227,7 @@ export default function ReviewForm() {
                   >
                     @{submitSuccess.value.profileUsername}
                   </a>
-                  's profile on Ethos.
+                  's profile.
                 </p>
               )}
               
@@ -233,22 +251,7 @@ export default function ReviewForm() {
                     </a>
                   </div>
                 )}
-                
-                {(submitSuccess.value.reviewId || submitSuccess.value.links?.ethosReview) && (
-                  <div>
-                    <a 
-                      href={submitSuccess.value.links?.ethosReview || `https://app.ethos.network/activity/review/${submitSuccess.value.reviewId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center gap-1 text-sm text-green-400 hover:text-green-300"
-                    >
-                      View Review on Ethos
-                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
-                      </svg>
-                    </a>
-                  </div>
-                )}
+
               </div>
               
               <button
