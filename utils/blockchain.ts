@@ -166,14 +166,31 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
       console.log("🔍 Parsing transaction logs for ReviewAdded event...");
       console.log("Total logs in receipt:", receipt.logs.length);
       
+      // Calculate expected event signature hash for debugging
+      const eventSignature = "ReviewAdded(uint256,address,address,uint8,string,string)";
+      console.log("🎯 Expected event signature:", eventSignature);
+      console.log("🔑 Contract interface events:", contract.interface.fragments.filter(f => f.type === 'event').map(e => e.format()));
+      
       // Look for ReviewAdded event in the transaction receipt
       for (const log of receipt.logs) {
         try {
           // Only try to parse logs from our contract address
           if (log.address.toLowerCase() === config.contractAddress.toLowerCase()) {
+            console.log("🔍 Attempting to parse log from contract:", {
+              address: log.address,
+              topics: log.topics,
+              data: log.data
+            });
+            
             const parsedLog = contract.interface.parseLog({
               topics: log.topics,
               data: log.data
+            });
+            
+            console.log("📝 Parsed log result:", {
+              name: parsedLog?.name,
+              hasArgs: !!parsedLog?.args,
+              signature: parsedLog?.signature
             });
             
             if (parsedLog && parsedLog.name === 'ReviewAdded') {
@@ -187,9 +204,12 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
                 comment: parsedLog.args.comment
               });
               break; // Found the event, stop searching
+            } else if (parsedLog) {
+              console.log("📝 Found different event:", parsedLog.name);
             }
           }
         } catch (parseError) {
+          console.log("❌ Error parsing log:", parseError.message);
           // Continue to next log if this one fails to parse
           continue;
         }
