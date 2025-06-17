@@ -195,7 +195,7 @@ export default function ReviewForm() {
             <div class="flex-1">
               <h3 class="text-lg font-semibold text-green-300 mb-2">Review Confirmed on Blockchain!</h3>
               <p class="text-green-200 mb-4">
-                Review submitted and confirmed! You can view it on Ethos.
+                Review submitted and confirmed!
               </p>
               
               {/* Direct Review Link */}
