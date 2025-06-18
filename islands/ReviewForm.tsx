@@ -332,22 +332,33 @@ export default function ReviewForm() {
         </label>
         <div class="flex gap-2">
           {[
-            { value: "negative", label: "Negative", color: "text-red-400 border-red-400" },
-            { value: "neutral", label: "Neutral", color: "text-yellow-400 border-yellow-400" },
-            { value: "positive", label: "Positive", color: "text-green-400 border-green-400" },
+            { value: "negative", label: "Negative", color: "text-red-400 border-red-400", disabled: false },
+            { value: "neutral", label: "Neutral", color: "text-yellow-400 border-yellow-400", disabled: false },
+            { value: "positive", label: "Positive", color: "text-green-400 border-green-400", disabled: false },
+            { value: "slash", label: "Slash", color: "text-purple-400 border-purple-400", disabled: true },
           ].map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => sentiment.value = option.value as any}
-              class={`px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
-                sentiment.value === option.value
-                  ? `${option.color} bg-opacity-10`
-                  : "border-neutral-700 text-neutral-400 hover:border-neutral-600"
-              }`}
-            >
-              {option.label}
-            </button>
+            <div key={option.value} class="relative">
+              <button
+                type="button"
+                onClick={() => !option.disabled && (sentiment.value = option.value as any)}
+                disabled={option.disabled}
+                class={`px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
+                  option.disabled
+                    ? "border-neutral-700 text-neutral-500 cursor-not-allowed opacity-50"
+                    : sentiment.value === option.value
+                    ? `${option.color} bg-opacity-10`
+                    : "border-neutral-700 text-neutral-400 hover:border-neutral-600"
+                }`}
+                title={option.disabled ? "Coming soon" : undefined}
+              >
+                {option.label}
+              </button>
+              {option.disabled && (
+                <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-neutral-800 text-neutral-200 text-xs px-2 py-1 rounded shadow-lg opacity-0 hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  Coming soon
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>
