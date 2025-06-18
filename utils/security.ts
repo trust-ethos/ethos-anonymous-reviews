@@ -47,13 +47,22 @@ export async function createSecureSession(sessionData: Omit<SecureSession, 'nonc
   const signature = await generateSignature(dataToSign);
   
   const secureSession: SecureSession = { ...sessionWithNonce, signature };
-  return btoa(JSON.stringify(secureSession));
+  // Use TextEncoder to handle Unicode characters safely
+  const sessionBytes = encoder.encode(JSON.stringify(secureSession));
+  return btoa(String.fromCharCode(...sessionBytes));
 }
 
 // Verify and parse secure session
 export async function verifySecureSession(sessionCookie: string): Promise<SecureSession | null> {
   try {
-    const session: SecureSession = JSON.parse(atob(sessionCookie));
+    // Decode Unicode-safe base64
+    const decodedBytes = atob(sessionCookie);
+    const uint8Array = new Uint8Array(decodedBytes.length);
+    for (let i = 0; i < decodedBytes.length; i++) {
+      uint8Array[i] = decodedBytes.charCodeAt(i);
+    }
+    const sessionJson = new TextDecoder().decode(uint8Array);
+    const session: SecureSession = JSON.parse(sessionJson);
     
     // Check expiration
     if (Date.now() > session.expiresAt) {
