@@ -40,6 +40,7 @@ export default function ReviewForm() {
   const isSubmitting = useSignal(false);
   const reputationData = useSignal<ReputationData | null>(null);
   const isLoadingReputation = useSignal(true);
+  const kairosScore = useSignal<number>(0);
   const submitSuccess = useSignal<{
     transactionHash?: string;
     reviewId?: string;
@@ -47,7 +48,7 @@ export default function ReviewForm() {
   } | null>(null);
 
   useEffect(() => {
-    // Check user reputation on component mount
+    // Check user reputation and KairosAgent score on component mount
     const checkReputation = async () => {
       try {
         const response = await fetch('/api/auth/reputation');
@@ -65,7 +66,20 @@ export default function ReviewForm() {
       }
     };
 
+    const fetchKairosScore = async () => {
+      try {
+        const response = await fetch('/api/kairos-stats');
+        if (response.ok) {
+          const data = await response.json();
+          kairosScore.value = data.score || 0;
+        }
+      } catch (error) {
+        console.log('Failed to fetch KairosAgent score:', error);
+      }
+    };
+
     checkReputation();
+    fetchKairosScore();
   }, []);
 
   // Check if user is trying to review themselves
@@ -408,7 +422,7 @@ export default function ReviewForm() {
             { value: "negative", label: "Negative", color: "text-red-400 border-red-400", disabled: false },
             { value: "neutral", label: "Neutral", color: "text-yellow-400 border-yellow-400", disabled: false },
             { value: "positive", label: "Positive", color: "text-green-400 border-green-400", disabled: false },
-            { value: "slash", label: "Slash", color: "text-red-400 border-red-400", disabled: false },
+            ...(kairosScore.value >= 1400 ? [{ value: "slash", label: "Slash", color: "text-red-400 border-red-400", disabled: false }] : []),
           ].map((option) => (
             <div key={option.value} class="relative">
               <button
@@ -448,7 +462,7 @@ export default function ReviewForm() {
             <div>
               <h4 class="text-sm font-medium text-red-300 mb-2">Slash Request Information</h4>
               <p class="text-sm text-red-200 leading-relaxed">
-                Slashes are proposed and then handled manually. We will process your slash once we are capable of doing so. The Ethos team reserves the right to refrain from following through with the slash if they feel it violates the purpose of this app or the Ethos T&Cs.
+                Slashes are proposed and then handled manually. We will process your slash once we are capable of doing so. The Ethos team reserves the right to refrain from following through with the slash if they feel it violates the purpose of this app or the Ethos T&Cs. All slashes are for 50 credibility score.
               </p>
             </div>
           </div>
