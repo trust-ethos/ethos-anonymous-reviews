@@ -33,6 +33,14 @@ interface ReviewNotificationData {
   reviewId?: string;
 }
 
+interface SlashNotificationData {
+  title: string;
+  description: string;
+  reviewerReputationLevel: string;
+  targetUsername: string;
+  requesterUsername: string;
+}
+
 // Discord color codes
 const SENTIMENT_COLORS = {
   positive: 0x22c55e,  // Green
@@ -212,4 +220,104 @@ export async function testDiscordWebhook(): Promise<boolean> {
 
   console.log("🧪 Sending test Discord notification...");
   return await sendReviewNotification(testData);
+}
+
+// Create Discord embed for slash notification
+function createSlashEmbed(data: SlashNotificationData): DiscordEmbed {
+  const embed: DiscordEmbed = {
+    title: "🔥 New Slash Request",
+    description: `A **${data.reviewerReputationLevel}** user (@${data.requesterUsername}) has requested a slash for **@${data.targetUsername}**`,
+    color: 0x8b5cf6, // Purple color for slash requests
+    fields: [
+      {
+        name: "Requester Level",
+        value: data.reviewerReputationLevel,
+        inline: true
+      },
+      {
+        name: "Target User",
+        value: `@${data.targetUsername}`,
+        inline: true
+      },
+      {
+        name: "Requester",
+        value: `@${data.requesterUsername}`,
+        inline: true
+      },
+      {
+        name: "Slash Title",
+        value: data.title.length > 256 ? data.title.substring(0, 253) + "..." : data.title,
+        inline: false
+      },
+      {
+        name: "Slash Description",
+        value: data.description.length > 1000 ? data.description.substring(0, 997) + "..." : data.description,
+        inline: false
+      },
+      {
+        name: "Action Required",
+        value: "This slash request needs manual review and processing.",
+        inline: false
+      }
+    ],
+    timestamp: new Date().toISOString(),
+    footer: {
+      text: "Ethos Anonymous Reviews - Slash Request"
+    }
+  };
+
+  return embed;
+}
+
+// Send Discord webhook notification for slash requests
+export async function sendSlashNotification(data: SlashNotificationData): Promise<boolean> {
+  // Check if notifications are enabled
+  if (!isDiscordNotificationsEnabled()) {
+    console.log("📢 Discord notifications disabled, skipping slash notification");
+    return false;
+  }
+
+  const webhookUrl = getDiscordWebhookUrl();
+  if (!webhookUrl) {
+    console.log("⚠️ Discord webhook URL not configured");
+    return false;
+  }
+
+  try {
+    const embed = createSlashEmbed(data);
+    const profileUrl = `https://app.ethos.network/profile/x/${data.targetUsername}`;
+    
+    // Put the URL on its own line for better Discord unfurling
+    const payload: DiscordWebhookPayload = {
+      content: `🔥 **New Slash Request for @${data.targetUsername}**\n\n${profileUrl}`,
+      embeds: [embed]
+    };
+
+    console.log("📢 Sending Discord notification for slash request:", {
+      target: data.targetUsername,
+      requester: data.requesterUsername,
+      reviewerLevel: data.reviewerReputationLevel,
+      profileUrl: profileUrl
+    });
+
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      console.log("✅ Discord slash notification sent successfully");
+      return true;
+    } else {
+      const errorText = await response.text();
+      console.error("❌ Discord slash webhook failed:", response.status, errorText);
+      return false;
+    }
+  } catch (error) {
+    console.error("❌ Error sending Discord slash notification:", error);
+    return false;
+  }
 } 

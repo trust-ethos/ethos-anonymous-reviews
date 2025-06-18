@@ -119,6 +119,54 @@ export default function ReviewForm() {
       const csrfData = await csrfResponse.json();
       const csrfToken = csrfData.csrfToken;
       
+      // Handle slash requests differently
+      if (sentiment.value === "slash") {
+        console.log("Submitting slash request:", {
+          profile: selectedProfile.value,
+          title: reviewTitle.value,
+          description: reviewDescription.value,
+          sentiment: sentiment.value
+        });
+
+        const response = await fetch("/api/slash/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            profileId: selectedProfile.value.profileId,
+            profileUsername: selectedProfile.value.username,
+            title: reviewTitle.value,
+            description: reviewDescription.value,
+            csrfToken: csrfToken,
+            requestNonce: crypto.randomUUID(),
+            reviewerReputationLevel: reputationData.value?.reputation?.level || "reputable",
+          }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log("✅ Slash request submitted:", result);
+          
+          // Show success notification for slash request
+          submitSuccess.value = {
+            message: "Slash request submitted successfully! We will review and process your request manually.",
+            profileUsername: selectedProfile.value.username,
+          };
+          
+          // Reset form
+          selectedProfile.value = null;
+          reviewTitle.value = "";
+          reviewDescription.value = "";
+          sentiment.value = "";
+        } else {
+          console.error("❌ Slash request failed:", result);
+          alert(`Failed to submit slash request: ${result.error || "Unknown error"}`);
+        }
+        return;
+      }
+      
       console.log("Submitting review to blockchain (this may take 30-60 seconds):", {
         profile: selectedProfile.value,
         title: reviewTitle.value,
@@ -185,21 +233,46 @@ export default function ReviewForm() {
     <form onSubmit={handleSubmit} class="space-y-6">
       {/* Success Notification */}
       {submitSuccess.value && (
-        <div class="bg-green-900/20 border border-green-700/50 rounded-lg p-6">
+        <div class={`rounded-lg p-6 ${
+          submitSuccess.value.message?.includes("Slash request") 
+            ? "bg-purple-900/20 border border-purple-700/50" 
+            : "bg-green-900/20 border border-green-700/50"
+        }`}>
           <div class="flex items-start gap-3">
             <div class="flex-shrink-0">
-              <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              <svg class={`w-6 h-6 ${
+                submitSuccess.value.message?.includes("Slash request") 
+                  ? "text-purple-400" 
+                  : "text-green-400"
+              }`} fill="currentColor" viewBox="0 0 24 24">
+                <path d={
+                  submitSuccess.value.message?.includes("Slash request")
+                    ? "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    : "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+                }/>
               </svg>
             </div>
             <div class="flex-1">
-              <h3 class="text-lg font-semibold text-green-300 mb-2">Review Confirmed on Blockchain!</h3>
-              <p class="text-green-200 mb-4">
-                Review submitted and confirmed!
+              <h3 class={`text-lg font-semibold mb-2 ${
+                submitSuccess.value.message?.includes("Slash request") 
+                  ? "text-purple-300" 
+                  : "text-green-300"
+              }`}>
+                {submitSuccess.value.message?.includes("Slash request") 
+                  ? "Slash Request Submitted!" 
+                  : "Review Confirmed on Blockchain!"
+                }
+              </h3>
+              <p class={`mb-4 ${
+                submitSuccess.value.message?.includes("Slash request") 
+                  ? "text-purple-200" 
+                  : "text-green-200"
+              }`}>
+                {submitSuccess.value.message || "Review submitted and confirmed!"}
               </p>
               
-              {/* Direct Review Link */}
-              {(submitSuccess.value.reviewId || submitSuccess.value.links?.ethosReview) && (
+              {/* Direct Review Link - Only for regular reviews, not slash requests */}
+              {!submitSuccess.value.message?.includes("Slash request") && (submitSuccess.value.reviewId || submitSuccess.value.links?.ethosReview) && (
                 <div class="mb-4">
                   <a 
                     href={submitSuccess.value.links?.ethosReview || `https://app.ethos.network/activity/review/${submitSuccess.value.reviewId}`}
@@ -216,7 +289,7 @@ export default function ReviewForm() {
               )}
               
               <div class="space-y-3">
-                {submitSuccess.value.transactionHash && (
+                {!submitSuccess.value.message?.includes("Slash request") && submitSuccess.value.transactionHash && (
                   <div>
                     <div class="text-sm font-medium text-green-300 mb-1">Transaction Hash:</div>
                     <div class="font-mono text-xs text-green-200 bg-green-900/30 p-2 rounded border break-all">
@@ -335,7 +408,7 @@ export default function ReviewForm() {
             { value: "negative", label: "Negative", color: "text-red-400 border-red-400", disabled: false },
             { value: "neutral", label: "Neutral", color: "text-yellow-400 border-yellow-400", disabled: false },
             { value: "positive", label: "Positive", color: "text-green-400 border-green-400", disabled: false },
-            { value: "slash", label: "Slash", color: "text-purple-400 border-purple-400", disabled: true },
+            { value: "slash", label: "Slash", color: "text-purple-400 border-purple-400", disabled: false },
           ].map((option) => (
             <div key={option.value} class="relative">
               <button
@@ -363,10 +436,29 @@ export default function ReviewForm() {
         </div>
       </div>
 
+      {/* Slash Disclaimer */}
+      {sentiment.value === "slash" && (
+        <div class="bg-purple-900/20 border border-purple-700/50 rounded-lg p-4 mb-6">
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0">
+              <svg class="w-5 h-5 text-purple-400 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-purple-300 mb-2">Slash Request Information</h4>
+              <p class="text-sm text-purple-200 leading-relaxed">
+                Slashes are proposed and then handled manually. We will process your slash once we are capable of doing so. The Ethos team reserves the right to refrain from following through with the slash if they feel it violates the purpose of this app or the Ethos T&Cs.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Review Title */}
       <div>
         <label class="block text-sm font-medium mb-2">
-          Review title
+          {sentiment.value === "slash" ? "Slash title" : "Review title"}
         </label>
         <input
           type="text"
@@ -387,7 +479,7 @@ export default function ReviewForm() {
       {/* Review Description */}
       <div>
         <label class="block text-sm font-medium mb-2">
-          Review description
+          {sentiment.value === "slash" ? "Slash description" : "Review description"}
         </label>
         <textarea
           value={reviewDescription.value}
@@ -426,14 +518,14 @@ export default function ReviewForm() {
         }`}
       >
         {isSubmitting.value 
-          ? "Confirming on blockchain..." 
+          ? (sentiment.value === "slash" ? "Submitting slash request..." : "Confirming on blockchain...") 
           : isSelfReview
           ? "Cannot review yourself"
           : !reputationData.value?.authenticated
           ? "Please login"
           : (reputationData.value?.authenticated && !canSubmit)
           ? "Must be reputable to submit"
-          : "Submit anon review"
+          : (sentiment.value === "slash" ? "Request slash" : "Submit anon review")
         }
       </button>
 
