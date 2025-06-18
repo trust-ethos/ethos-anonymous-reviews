@@ -235,14 +235,14 @@ export default function ReviewForm() {
       {submitSuccess.value && (
         <div class={`rounded-lg p-6 ${
           submitSuccess.value.message?.includes("Slash request") 
-            ? "bg-purple-900/20 border border-purple-700/50" 
+            ? "bg-red-900/20 border border-red-700/50" 
             : "bg-green-900/20 border border-green-700/50"
         }`}>
           <div class="flex items-start gap-3">
             <div class="flex-shrink-0">
               <svg class={`w-6 h-6 ${
                 submitSuccess.value.message?.includes("Slash request") 
-                  ? "text-purple-400" 
+                  ? "text-red-400" 
                   : "text-green-400"
               }`} fill="currentColor" viewBox="0 0 24 24">
                 <path d={
@@ -255,7 +255,7 @@ export default function ReviewForm() {
             <div class="flex-1">
               <h3 class={`text-lg font-semibold mb-2 ${
                 submitSuccess.value.message?.includes("Slash request") 
-                  ? "text-purple-300" 
+                  ? "text-red-300" 
                   : "text-green-300"
               }`}>
                 {submitSuccess.value.message?.includes("Slash request") 
@@ -265,7 +265,7 @@ export default function ReviewForm() {
               </h3>
               <p class={`mb-4 ${
                 submitSuccess.value.message?.includes("Slash request") 
-                  ? "text-purple-200" 
+                  ? "text-red-200" 
                   : "text-green-200"
               }`}>
                 {submitSuccess.value.message || "Review submitted and confirmed!"}
@@ -408,7 +408,7 @@ export default function ReviewForm() {
             { value: "negative", label: "Negative", color: "text-red-400 border-red-400", disabled: false },
             { value: "neutral", label: "Neutral", color: "text-yellow-400 border-yellow-400", disabled: false },
             { value: "positive", label: "Positive", color: "text-green-400 border-green-400", disabled: false },
-            { value: "slash", label: "Slash", color: "text-purple-400 border-purple-400", disabled: false },
+            { value: "slash", label: "Slash", color: "text-red-400 border-red-400", disabled: false },
           ].map((option) => (
             <div key={option.value} class="relative">
               <button
@@ -438,16 +438,16 @@ export default function ReviewForm() {
 
       {/* Slash Disclaimer */}
       {sentiment.value === "slash" && (
-        <div class="bg-purple-900/20 border border-purple-700/50 rounded-lg p-4 mb-6">
+        <div class="bg-red-900/20 border border-red-700/50 rounded-lg p-4 mb-6">
           <div class="flex items-start gap-3">
             <div class="flex-shrink-0">
-              <svg class="w-5 h-5 text-purple-400 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-red-400 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
             </div>
             <div>
-              <h4 class="text-sm font-medium text-purple-300 mb-2">Slash Request Information</h4>
-              <p class="text-sm text-purple-200 leading-relaxed">
+              <h4 class="text-sm font-medium text-red-300 mb-2">Slash Request Information</h4>
+              <p class="text-sm text-red-200 leading-relaxed">
                 Slashes are proposed and then handled manually. We will process your slash once we are capable of doing so. The Ethos team reserves the right to refrain from following through with the slash if they feel it violates the purpose of this app or the Ethos T&Cs.
               </p>
             </div>

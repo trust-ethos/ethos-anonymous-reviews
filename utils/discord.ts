@@ -227,7 +227,7 @@ function createSlashEmbed(data: SlashNotificationData): DiscordEmbed {
   const embed: DiscordEmbed = {
     title: "🔥 New Slash Request",
     description: `A **${data.reviewerReputationLevel}** user (@${data.requesterUsername}) has requested a slash for **@${data.targetUsername}**`,
-    color: 0x8b5cf6, // Purple color for slash requests
+    color: 0xef4444, // Red color for slash requests
     fields: [
       {
         name: "Requester Level",
