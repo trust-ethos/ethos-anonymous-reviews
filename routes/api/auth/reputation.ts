@@ -42,7 +42,10 @@ export const handler: Handlers = {
         console.log("❌ No session cookie found");
         return new Response(JSON.stringify({ authenticated: false }), {
           status: 401,
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, no-store, must-revalidate"
+          },
         });
       }
 
@@ -53,7 +56,10 @@ export const handler: Handlers = {
         console.log("❌ Invalid or expired session");
         return new Response(JSON.stringify({ authenticated: false, expired: true }), {
           status: 401,
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, no-store, must-revalidate"
+          },
         });
       }
 
@@ -139,7 +145,12 @@ export const handler: Handlers = {
           reason: canSubmit ? null : `Must be reputable to submit (score ≥ 1600). Your current score: ${score}`
         }
       }), {
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        },
       });
     } catch (error) {
       console.error("❌ Reputation check error:", error);
