@@ -103,8 +103,18 @@ async function resolveXAccountId(username: string): Promise<string | null> {
       return accountId;
     }
     
-    console.log("❌ No X account ID found in userkeys for:", username);
+    // Fallback: if no X service key found, use profile ID
+    // This allows reviews for users who haven't connected their X account properly
+    console.log("⚠️ No X service key found, using profile ID as fallback for:", username);
     console.log("🔍 Available userkeys:", userProfile.userkeys);
+    
+    const profileId = userProfile.profileId?.toString();
+    if (profileId) {
+      console.log("✅ Using profile ID as fallback X account ID for", username, ":", profileId);
+      return profileId;
+    }
+    
+    console.log("❌ No profile ID available for fallback:", username);
     return null;
   } catch (error) {
     console.error("❌ Error resolving X account ID:", error);
@@ -228,7 +238,7 @@ export const handler: Handlers = {
       
       if (!xAccountId) {
         return new Response(JSON.stringify({ 
-          error: `No X account ID found for @${body.profileUsername}. The user needs to have their X account connected to their Ethos profile to receive reviews.` 
+          error: `Unable to resolve account ID for @${body.profileUsername}. The user's Ethos profile may not be properly configured.` 
         }), {
           status: 400,
           headers: { "Content-Type": "application/json" },
