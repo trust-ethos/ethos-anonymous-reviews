@@ -83,6 +83,15 @@ async function resolveXAccountId(username: string): Promise<string | null> {
 
     const userProfile = ethosData[0];
     
+    // Debug logging for userkeys
+    console.log("🔍 Debug: Full user profile data for", username, ":", {
+      id: userProfile.id,
+      profileId: userProfile.profileId,
+      username: userProfile.username,
+      userkeys: userProfile.userkeys,
+      userkeyCount: userProfile.userkeys?.length || 0
+    });
+    
     // Look for X.com service key in userkeys
     const xServiceKey = userProfile.userkeys?.find(key => 
       key.startsWith('service:x.com:')
@@ -95,6 +104,7 @@ async function resolveXAccountId(username: string): Promise<string | null> {
     }
     
     console.log("❌ No X account ID found in userkeys for:", username);
+    console.log("🔍 Available userkeys:", userProfile.userkeys);
     return null;
   } catch (error) {
     console.error("❌ Error resolving X account ID:", error);

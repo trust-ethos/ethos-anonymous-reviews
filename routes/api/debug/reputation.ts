@@ -23,17 +23,13 @@ export const handler: Handlers = {
     console.log("🐛 DEBUG: Reputation check starting...");
     
     try {
-      // Get session cookie
+      // 1. Check authentication with secure session
       const cookies = req.headers.get("cookie") || "";
-      console.log("🐛 DEBUG: Raw cookies:", cookies);
-      
       const sessionCookie = cookies.split(";").find(c => c.trim().startsWith("twitter_session="));
-      console.log("🐛 DEBUG: Session cookie found:", !!sessionCookie);
       
       if (!sessionCookie) {
-        return new Response(JSON.stringify({ 
-          error: "No session cookie found",
-          cookies: cookies
+        return new Response(JSON.stringify({
+          error: "Not authenticated"
         }), {
           status: 401,
           headers: { "Content-Type": "application/json" },
@@ -41,27 +37,98 @@ export const handler: Handlers = {
       }
 
       const sessionData = sessionCookie.split("=")[1];
-      console.log("🐛 DEBUG: Session data length:", sessionData.length);
-      
       const session: SecureSession | null = await verifySecureSession(sessionData);
-      console.log("🐛 DEBUG: Session verification result:", !!session);
 
       if (!session) {
-        return new Response(JSON.stringify({ 
-          error: "Invalid or expired session",
-          hasSessionData: !!sessionData
+        return new Response(JSON.stringify({
+          error: "Invalid or expired session"
         }), {
           status: 401,
           headers: { "Content-Type": "application/json" },
         });
       }
 
-      console.log("🐛 DEBUG: User data from session:", {
-        id: session.user.id,
-        username: session.user.username,
-        name: session.user.name,
-        hasProfileImage: !!session.user.profileImageUrl
-      });
+      const url = new URL(req.url);
+      const testUsername = url.searchParams.get('testUsername');
+      
+      // If testUsername is provided, debug that user's X account ID resolution
+      if (testUsername) {
+        console.log("🐛 DEBUG: Testing X account ID resolution for:", testUsername);
+        
+        const requestPayload = {
+          accountIdsOrUsernames: [testUsername]
+        };
+        
+        const ethosResponse = await fetch('https://api.ethos.network/api/v2/users/by/x', {
+          method: 'POST',
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestPayload)
+        });
+        
+        if (!ethosResponse.ok) {
+          return new Response(JSON.stringify({
+            error: "Failed to fetch from Ethos API",
+            status: ethosResponse.status,
+            username: testUsername
+          }), {
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        
+        const ethosData: EthosUserResponse = await ethosResponse.json();
+        
+        if (!ethosData || ethosData.length === 0) {
+          return new Response(JSON.stringify({
+            error: "No Ethos profile found",
+            username: testUsername,
+            searchedFor: requestPayload.accountIdsOrUsernames
+          }), {
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        
+        const userProfile = ethosData[0];
+        
+        // Look for X.com service key in userkeys
+        const xServiceKey = userProfile.userkeys?.find(key => 
+          key.startsWith('service:x.com:')
+        );
+        
+                 let xAccountId: string | null = null;
+         if (xServiceKey) {
+           xAccountId = xServiceKey.replace('service:x.com:', '');
+         }
+        
+        return new Response(JSON.stringify({
+          username: testUsername,
+          profileData: {
+            id: userProfile.id,
+            profileId: userProfile.profileId,
+            username: userProfile.username,
+            displayName: userProfile.displayName,
+            score: userProfile.score,
+            userkeys: userProfile.userkeys,
+            userkeyCount: userProfile.userkeys?.length || 0
+          },
+          xAccountId: xAccountId,
+          hasXAccountId: !!xAccountId,
+          xServiceKey: xServiceKey || null,
+          debug: {
+            searchedForServiceKey: 'service:x.com:',
+            foundServiceKey: !!xServiceKey,
+            allUserkeys: userProfile.userkeys || []
+          }
+        }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      console.log("🐛 DEBUG: Authenticated user debug request");
+      console.log("🐛 DEBUG: Session user ID:", session.user.id);
+      console.log("🐛 DEBUG: Session user username:", session.user.username);
 
       // Test the exact API call we're making
       const requestPayload = {
