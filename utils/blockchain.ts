@@ -73,7 +73,7 @@ export interface ReviewData {
   comment: string; // Short review title
   description: string; // Detailed review description
   reviewerUsername: string; // X username of reviewer (for attestation)
-  subjectXAccountId?: string; // X account ID of the person being reviewed (for attestation)
+  subjectXAccountId: string; // X account ID of the person being reviewed (REQUIRED - no fallback to username)
   reviewerReputationLevel?: string; // Reputation level of the reviewer (for anonymous disclaimer)
 }
 
@@ -123,8 +123,12 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
   });
   
   // Prepare attestation details - use subject's X account ID for attestation
+  if (!reviewData.subjectXAccountId) {
+    throw new Error("Subject X account ID is required - will not fall back to username for data integrity");
+  }
+  
   const attestationDetails: AttestationDetails = {
-    account: reviewData.subjectXAccountId || reviewData.reviewerUsername,
+    account: reviewData.subjectXAccountId,
     service: "x.com"
   };
   

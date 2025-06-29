@@ -92,7 +92,7 @@ async function resolveXAccountId(username: string): Promise<string | null> {
       userkeyCount: userProfile.userkeys?.length || 0
     });
     
-    // Look for X.com service key in userkeys
+    // First try: Look for X.com service key in userkeys
     const xServiceKey = userProfile.userkeys?.find(key => 
       key.startsWith('service:x.com:')
     );
@@ -100,18 +100,45 @@ async function resolveXAccountId(username: string): Promise<string | null> {
     if (xServiceKey) {
       const accountId = xServiceKey.replace('service:x.com:', '');
       console.log("✅ Found X account ID for", username, ":", accountId);
-      console.log("🎯 Will create attestation for: x.com/" + accountId + " (using actual X.com user ID)");
+      console.log("🎯 Will create attestation for: x.com/" + accountId + " (using actual X.com user ID from userkeys)");
       return accountId;
     }
     
-    // For users without X service key, we'll use their username directly
-    // This creates attestation for x.com/username instead of x.com/profileId
-    console.log("⚠️ No X service key found, will use username directly for attestation:", username);
+    // Second try: Use Ethos Twitter user API to get actual X.com ID
+    console.log("⚠️ No X service key found in userkeys, trying Ethos Twitter user API...");
     console.log("🔍 Available userkeys:", userProfile.userkeys);
-    console.log("🎯 Will create attestation for: x.com/" + username + " (using X.com handle as fallback)");
     
-    // Return the username - this will be used for x.com/username attestation
-    return username;
+    try {
+      const twitterUserResponse = await fetch(`https://api.ethos.network/api/twitter/user?username=${username}`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+        }
+      });
+      
+      if (twitterUserResponse.ok) {
+        const twitterUserData = await twitterUserResponse.json();
+        
+        if (twitterUserData.ok && twitterUserData.data && twitterUserData.data.id) {
+          const xAccountId = twitterUserData.data.id;
+          console.log("✅ Found X account ID via Twitter user API for", username, ":", xAccountId);
+          console.log("🎯 Will create attestation for: x.com/" + xAccountId + " (using actual X.com user ID from Twitter API)");
+          return xAccountId;
+        } else {
+          console.log("❌ Twitter user API returned invalid data:", twitterUserData);
+        }
+      } else {
+        console.log("❌ Twitter user API request failed:", twitterUserResponse.status);
+      }
+    } catch (twitterApiError) {
+      console.error("❌ Error calling Twitter user API:", twitterApiError);
+    }
+    
+    // Both methods failed - refuse to fall back to username
+    console.log("❌ Both X service key lookup and Twitter user API failed for:", username);
+    console.log("🚫 Refusing to fall back to username - failing request for data integrity");
+    
+    return null; // Return null to indicate failure
   } catch (error) {
     console.error("❌ Error resolving X account ID:", error);
     return null;
@@ -240,7 +267,13 @@ export const handler: Handlers = {
       
       if (!xAccountId) {
         return new Response(JSON.stringify({ 
-          error: `Unable to resolve X account for @${body.profileUsername}. Please verify the username is correct.` 
+          error: `Unable to resolve X.com account ID for @${body.profileUsername}. We tried both the Ethos userkeys and the Twitter user API, but neither provided a valid X.com user ID.`,
+          details: "Reviews require actual X.com user IDs for data integrity - we do not fall back to usernames.",
+          troubleshooting: [
+            "Verify the username is correct and the user exists on X.com",
+            "Check if the user has their X.com account properly linked in their Ethos profile",
+            "The user may need to update their Ethos profile connections"
+          ]
         }), {
           status: 400,
           headers: { "Content-Type": "application/json" },

@@ -58,50 +58,106 @@ async function debugResolveXAccountId(username: string) {
 
     const userProfile = ethosData[0];
     
-    // Look for X.com service key in userkeys
+    // First try: Look for X.com service key in userkeys
     const xServiceKey = userProfile.userkeys?.find(key => 
       key.startsWith('service:x.com:')
     );
     
-    let result;
+    let result: any = {
+      username,
+      ethosProfile: {
+        id: userProfile.id,
+        profileId: userProfile.profileId,
+        username: userProfile.username,
+        displayName: userProfile.displayName,
+        score: userProfile.score
+      },
+      userkeys: userProfile.userkeys,
+      methods: {
+        userkeysMethod: null,
+        twitterApiMethod: null
+      }
+    };
+    
     if (xServiceKey) {
       const accountId = xServiceKey.replace('service:x.com:', '');
-      result = {
+      result.methods.userkeysMethod = {
         success: true,
-        username,
-        resolvedXAccountId: accountId,
-        attestationTarget: `x.com/${accountId}`,
-        usingActualXId: true,
-        ethosProfile: {
-          id: userProfile.id,
-          profileId: userProfile.profileId,
-          username: userProfile.username,
-          displayName: userProfile.displayName,
-          score: userProfile.score
-        },
-        userkeys: userProfile.userkeys,
+        xAccountId: accountId,
         xServiceKey: xServiceKey
       };
+      result.success = true;
+      result.resolvedXAccountId = accountId;
+      result.attestationTarget = `x.com/${accountId}`;
+      result.primaryMethod = "userkeys";
+      result.usingActualXId = true;
+      
+      console.log("🐛 DEBUG: Userkeys method succeeded:", accountId);
+      return result;
     } else {
-      result = {
-        success: true,
-        username,
-        resolvedXAccountId: username,
-        attestationTarget: `x.com/${username}`,
-        usingActualXId: false,
-        fallbackReason: "No X.com service key found in userkeys",
-        ethosProfile: {
-          id: userProfile.id,
-          profileId: userProfile.profileId,
-          username: userProfile.username,
-          displayName: userProfile.displayName,
-          score: userProfile.score
-        },
-        userkeys: userProfile.userkeys
+      result.methods.userkeysMethod = {
+        success: false,
+        reason: "No X.com service key found in userkeys"
       };
     }
     
-    console.log("🐛 DEBUG: Resolution result:", result);
+    // Second try: Use Ethos Twitter user API
+    try {
+      const twitterUserResponse = await fetch(`https://api.ethos.network/api/twitter/user?username=${username}`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+        }
+      });
+      
+      if (twitterUserResponse.ok) {
+        const twitterUserData = await twitterUserResponse.json();
+        
+        if (twitterUserData.ok && twitterUserData.data && twitterUserData.data.id) {
+          const xAccountId = twitterUserData.data.id;
+          result.methods.twitterApiMethod = {
+            success: true,
+            xAccountId: xAccountId,
+            twitterUserData: twitterUserData.data
+          };
+          result.success = true;
+          result.resolvedXAccountId = xAccountId;
+          result.attestationTarget = `x.com/${xAccountId}`;
+          result.primaryMethod = "twitterApi";
+          result.usingActualXId = true;
+          
+          console.log("🐛 DEBUG: Twitter API method succeeded:", xAccountId);
+          return result;
+        } else {
+          result.methods.twitterApiMethod = {
+            success: false,
+            reason: "Twitter API returned invalid data",
+            response: twitterUserData
+          };
+        }
+      } else {
+        result.methods.twitterApiMethod = {
+          success: false,
+          reason: `Twitter API request failed: ${twitterUserResponse.status}`,
+          status: twitterUserResponse.status
+        };
+      }
+    } catch (twitterApiError) {
+      result.methods.twitterApiMethod = {
+        success: false,
+        reason: "Twitter API error",
+        error: twitterApiError.message
+      };
+    }
+    
+    // Both methods failed
+    result.success = false;
+    result.error = "Both userkeys and Twitter API methods failed - refusing to fall back to username for data integrity";
+    result.resolvedXAccountId = null;
+    result.attestationTarget = null;
+    result.recommendation = "User must have their X.com account properly linked in their Ethos profile, or the Twitter API must be accessible";
+    
+    console.log("🐛 DEBUG: Both methods failed for:", username);
     return result;
     
   } catch (error) {
