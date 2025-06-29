@@ -100,6 +100,7 @@ async function resolveXAccountId(username: string): Promise<string | null> {
     if (xServiceKey) {
       const accountId = xServiceKey.replace('service:x.com:', '');
       console.log("✅ Found X account ID for", username, ":", accountId);
+      console.log("🎯 Will create attestation for: x.com/" + accountId + " (using actual X.com user ID)");
       return accountId;
     }
     
@@ -107,6 +108,7 @@ async function resolveXAccountId(username: string): Promise<string | null> {
     // This creates attestation for x.com/username instead of x.com/profileId
     console.log("⚠️ No X service key found, will use username directly for attestation:", username);
     console.log("🔍 Available userkeys:", userProfile.userkeys);
+    console.log("🎯 Will create attestation for: x.com/" + username + " (using X.com handle as fallback)");
     
     // Return the username - this will be used for x.com/username attestation
     return username;
@@ -228,6 +230,12 @@ export const handler: Handlers = {
 
       // 10. Resolve X account ID for attestation
       console.log("🔍 Resolving X account ID for attestation...");
+      console.log("📋 Reviewer info:", {
+        reviewerUsername: session.user.username,
+        reviewerXId: session.user.id,
+        targetUsername: body.profileUsername
+      });
+      
       const xAccountId = await resolveXAccountId(body.profileUsername);
       
       if (!xAccountId) {
@@ -238,6 +246,13 @@ export const handler: Handlers = {
           headers: { "Content-Type": "application/json" },
         });
       }
+      
+      console.log("✅ X account resolution successful:", {
+        targetUsername: body.profileUsername,
+        resolvedXAccountId: xAccountId,
+        isActualXId: xAccountId !== body.profileUsername,
+        attestationTarget: `x.com/${xAccountId}`
+      });
 
       // 11. Get reviewer's reputation level for anonymous disclaimer
       let reviewerReputationLevel = "reputable"; // Default fallback
@@ -308,6 +323,8 @@ export const handler: Handlers = {
         subjectAddress: reviewData.subjectAddress,
         paymentToken: "0x0000000000000000000000000000000000000000",
         attestationService: "x.com",
+        attestationTarget: `x.com/${xAccountId}`,
+        usingActualXId: xAccountId !== body.profileUsername,
         securityChecks: "✅ All passed"
       });
 
