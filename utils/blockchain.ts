@@ -106,14 +106,13 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
   const contract = new ethers.Contract(config.contractAddress, REVIEW_CONTRACT_ABI, wallet);
   
   // Prepare description with anonymous disclaimer
-  const reputationLevel = reviewData.reviewerReputationLevel || "reputable";
+  const reputationLevel = "reputable+"; // Always use "reputable+" to protect anonymity
   console.log("🏷️ Creating anonymous disclaimer with reputation level:", {
     provided: reviewData.reviewerReputationLevel,
-    fallback: "reputable",
-    final: reputationLevel,
-    lowercase: reputationLevel.toLowerCase()
+    protected: reputationLevel,
+    note: "Always showing 'reputable+' to protect reviewer anonymity"
   });
-  const anonymousDisclaimer = `_This review was left anonymously by a **${reputationLevel.toLowerCase()}** Ethos user via anon.ethos.network_\n\n`;
+  const anonymousDisclaimer = `_This review was left anonymously by a **${reputationLevel}** Ethos user via anon.ethos.network_\n\n`;
   const fullDescription = anonymousDisclaimer + reviewData.description;
   
   // Prepare metadata JSON

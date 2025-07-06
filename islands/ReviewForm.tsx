@@ -371,7 +371,7 @@ export default function ReviewForm() {
             </div>
             <div class="flex-1">
               <div class="text-sm font-medium">
-                Anonymous {reputationData.value.reputation?.level || "user"}
+                Anonymous Reputable+ user
               </div>
               <div class="text-xs text-neutral-400">
                 {reputationData.value.reputation ? 
@@ -382,7 +382,7 @@ export default function ReviewForm() {
             </div>
           </div>
           <div class="text-xs text-neutral-400 mt-2">
-            Your review will be saved anonymously. Only the score level you are in will be revealed.
+            Your review will be saved anonymously. You will appear as a "Reputable+" user to protect your identity.
           </div>
         </div>
       )}

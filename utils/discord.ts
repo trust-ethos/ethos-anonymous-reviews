@@ -65,12 +65,12 @@ function createReviewEmbed(data: ReviewNotificationData): DiscordEmbed {
   
   const embed: DiscordEmbed = {
     title: `New ${sentimentText} Anonymous Review`,
-    description: `A **${data.reviewerReputationLevel}** user left an anonymous review for **@${data.targetUsername}**`,
+    description: `A **Reputable+** user left an anonymous review for **@${data.targetUsername}**`,
     color: SENTIMENT_COLORS[data.sentiment],
     fields: [
       {
         name: "Reviewer Level",
-        value: data.reviewerReputationLevel,
+        value: "Reputable+",
         inline: true
       },
       {
@@ -226,12 +226,12 @@ export async function testDiscordWebhook(): Promise<boolean> {
 function createSlashEmbed(data: SlashNotificationData): DiscordEmbed {
   const embed: DiscordEmbed = {
     title: "🔥 New Slash Request",
-    description: `A **${data.reviewerReputationLevel}** user (@${data.requesterUsername}) has requested a slash for **@${data.targetUsername}**`,
+    description: `A **Reputable+** user (@${data.requesterUsername}) has requested a slash for **@${data.targetUsername}**`,
     color: 0xef4444, // Red color for slash requests
     fields: [
       {
         name: "Requester Level",
-        value: data.reviewerReputationLevel,
+        value: "Reputable+",
         inline: true
       },
       {
