@@ -213,7 +213,7 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
             }
           }
         } catch (parseError) {
-          console.log("❌ Error parsing log:", parseError.message);
+          console.log("❌ Error parsing log:", parseError instanceof Error ? parseError.message : String(parseError));
           // Continue to next log if this one fails to parse
           continue;
         }
@@ -236,7 +236,7 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
     };
   } catch (error) {
     console.error("Blockchain submission error:", error);
-    throw new Error(`Failed to submit review to blockchain: ${error.message}`);
+    throw new Error(`Failed to submit review to blockchain: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 

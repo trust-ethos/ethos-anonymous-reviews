@@ -36,7 +36,7 @@ export default function ReviewForm() {
   const selectedProfile = useSignal<EthosProfile | null>(null);
   const reviewTitle = useSignal("");
   const reviewDescription = useSignal("");
-  const sentiment = useSignal<"negative" | "neutral" | "positive" | "">("");
+  const sentiment = useSignal<"negative" | "neutral" | "positive" | "slash" | "">("");
   const isSubmitting = useSignal(false);
   const reputationData = useSignal<ReputationData | null>(null);
   const isLoadingReputation = useSignal(true);
@@ -45,6 +45,11 @@ export default function ReviewForm() {
     transactionHash?: string;
     reviewId?: string;
     profileUsername?: string;
+    message?: string;
+    links?: {
+      ethosReview?: string;
+      basescan?: string;
+    };
   } | null>(null);
 
   useEffect(() => {
@@ -422,7 +427,7 @@ export default function ReviewForm() {
             { value: "negative", label: "Negative", color: "text-red-400 border-red-400", disabled: false },
             { value: "neutral", label: "Neutral", color: "text-yellow-400 border-yellow-400", disabled: false },
             { value: "positive", label: "Positive", color: "text-green-400 border-green-400", disabled: false },
-            ...(reputationData.value?.reputation?.score >= 1600 ? [{ value: "slash", label: "Slash", color: "text-red-400 border-red-400", disabled: false }] : []),
+            ...(reputationData.value?.reputation?.score && reputationData.value.reputation.score >= 1600 ? [{ value: "slash", label: "Slash", color: "text-red-400 border-red-400", disabled: false }] : []),
           ].map((option) => (
             <div key={option.value} class="relative">
               <button
