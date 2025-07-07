@@ -146,7 +146,7 @@ async function debugResolveXAccountId(username: string) {
       result.methods.twitterApiMethod = {
         success: false,
         reason: "Twitter API error",
-        error: twitterApiError.message
+        error: twitterApiError instanceof Error ? twitterApiError.message : String(twitterApiError)
       };
     }
     
@@ -163,9 +163,9 @@ async function debugResolveXAccountId(username: string) {
   } catch (error) {
     return {
       success: false,
-      error: `Error resolving X account ID: ${error.message}`,
+      error: `Error resolving X account ID: ${error instanceof Error ? error.message : String(error)}`,
       username,
-      stack: error.stack
+      stack: error instanceof Error ? error.stack : undefined
     };
   }
 }
