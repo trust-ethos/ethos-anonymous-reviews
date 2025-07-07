@@ -1,0 +1,58 @@
+{
+  "build_id": "c45394298312700cd62432fcff3d23b0af7793aa",
+  "files": {
+    "main.js": [
+      "chunk-GI7LLYGM.js",
+      "chunk-JP5XG2OT.js"
+    ],
+    "deserializer.js": [],
+    "signals.js": [
+      "chunk-BFVMAUAC.js",
+      "chunk-GI7LLYGM.js",
+      "chunk-JP5XG2OT.js"
+    ],
+    "island-authbutton.js": [
+      "chunk-BFVMAUAC.js",
+      "chunk-GI7LLYGM.js",
+      "chunk-BYRZ2NRM.js",
+      "chunk-JP5XG2OT.js"
+    ],
+    "island-counter.js": [
+      "chunk-BYRZ2NRM.js",
+      "chunk-JP5XG2OT.js"
+    ],
+    "island-ethosprofilesearch.js": [
+      "chunk-ULBJE5V7.js",
+      "chunk-BFVMAUAC.js",
+      "chunk-GI7LLYGM.js",
+      "chunk-BYRZ2NRM.js",
+      "chunk-JP5XG2OT.js"
+    ],
+    "island-kairosagentsidebar.js": [
+      "chunk-BFVMAUAC.js",
+      "chunk-GI7LLYGM.js",
+      "chunk-BYRZ2NRM.js",
+      "chunk-JP5XG2OT.js"
+    ],
+    "island-reviewform.js": [
+      "chunk-ULBJE5V7.js",
+      "chunk-BFVMAUAC.js",
+      "chunk-GI7LLYGM.js",
+      "chunk-BYRZ2NRM.js",
+      "chunk-JP5XG2OT.js"
+    ],
+    "chunk-ULBJE5V7.js": [
+      "chunk-BFVMAUAC.js",
+      "chunk-BYRZ2NRM.js"
+    ],
+    "chunk-BFVMAUAC.js": [
+      "chunk-JP5XG2OT.js"
+    ],
+    "chunk-GI7LLYGM.js": [],
+    "chunk-BYRZ2NRM.js": [
+      "chunk-JP5XG2OT.js"
+    ],
+    "chunk-JP5XG2OT.js": [],
+    "metafile.json": []
+  }
+}

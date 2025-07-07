@@ -7,10 +7,13 @@ import * as $_app from "./routes/_app.tsx";
 import * as $api_auth_csrf from "./routes/api/auth/csrf.ts";
 import * as $api_auth_me from "./routes/api/auth/me.ts";
 import * as $api_auth_reputation from "./routes/api/auth/reputation.ts";
+import * as $api_debug_reputation from "./routes/api/debug/reputation.ts";
+import * as $api_debug_x_account_resolution from "./routes/api/debug/x-account-resolution.ts";
 import * as $api_discord_test from "./routes/api/discord/test.ts";
 import * as $api_joke from "./routes/api/joke.ts";
 import * as $api_kairos_stats from "./routes/api/kairos-stats.ts";
 import * as $api_reviews_submit from "./routes/api/reviews/submit.ts";
+import * as $api_slash_submit from "./routes/api/slash/submit.ts";
 import * as $auth_logout from "./routes/auth/logout.ts";
 import * as $auth_twitter from "./routes/auth/twitter.ts";
 import * as $auth_twitter_callback from "./routes/auth/twitter/callback.ts";
@@ -30,10 +33,14 @@ const manifest = {
     "./routes/api/auth/csrf.ts": $api_auth_csrf,
     "./routes/api/auth/me.ts": $api_auth_me,
     "./routes/api/auth/reputation.ts": $api_auth_reputation,
+    "./routes/api/debug/reputation.ts": $api_debug_reputation,
+    "./routes/api/debug/x-account-resolution.ts":
+      $api_debug_x_account_resolution,
     "./routes/api/discord/test.ts": $api_discord_test,
     "./routes/api/joke.ts": $api_joke,
     "./routes/api/kairos-stats.ts": $api_kairos_stats,
     "./routes/api/reviews/submit.ts": $api_reviews_submit,
+    "./routes/api/slash/submit.ts": $api_slash_submit,
     "./routes/auth/logout.ts": $auth_logout,
     "./routes/auth/twitter.ts": $auth_twitter,
     "./routes/auth/twitter/callback.ts": $auth_twitter_callback,

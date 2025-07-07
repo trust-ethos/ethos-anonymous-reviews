@@ -10,6 +10,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     permissions:
       id-token: write # Needed for auth with Deno Deploy
@@ -25,24 +26,38 @@ jobs:
           deno-version: v2.x
 
       - name: Cache dependencies
+        timeout-minutes: 5
         run: |
           echo "Caching Deno dependencies..."
-          # Try to cache dependencies, but don't fail if some are unavailable
-          deno cache --reload deno.json || echo "Some dependencies may not be available in CI"
-          deno cache islands/PrivyProvider.tsx islands/AuthButton.tsx routes/_app.tsx || echo "Privy dependencies may not be available in CI"
+          deno cache --reload deno.json
 
       - name: Build step
+        timeout-minutes: 5
         run: |
           echo "Starting build process..."
-          # Set environment variable to indicate build environment
-          export DENO_DEPLOY_BUILD=true
           deno task build
 
       - name: Upload to Deno Deploy
+        timeout-minutes: 5
         uses: denoland/deployctl@v1
         with:
           project: "ethos-anonymous-reviews"
           entrypoint: "main.ts"
           root: "."
+          include: |
+            main.ts
+            fresh.gen.ts
+            fresh.config.ts
+            deno.json
+            routes/
+            islands/
+            components/
+            utils/
+            static/
+          exclude: |
+            .env
+            .env.*
+            node_modules/
+            .git/
           
           
