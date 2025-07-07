@@ -65,13 +65,3 @@ jobs:
           project: "ethos-anonymous-reviews"
           entrypoint: "main.ts"
           root: "."
-          
-      # Fallback: Try minimal deployment if main fails
-      - name: Deploy minimal version (fallback)
-        if: failure()
-        timeout-minutes: 5
-        uses: denoland/deployctl@v1
-        with:
-          project: "ethos-anonymous-reviews-minimal"
-          entrypoint: "main-minimal.ts"
-          root: "."
