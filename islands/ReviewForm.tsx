@@ -36,7 +36,7 @@ export default function ReviewForm() {
   const selectedProfile = useSignal<EthosProfile | null>(null);
   const reviewTitle = useSignal("");
   const reviewDescription = useSignal("");
-  const sentiment = useSignal<"negative" | "neutral" | "positive" | "">("");
+  const sentiment = useSignal<"negative" | "neutral" | "positive" | "slash" | "">("");
   const isSubmitting = useSignal(false);
   const reputationData = useSignal<ReputationData | null>(null);
   const isLoadingReputation = useSignal(true);
@@ -45,6 +45,11 @@ export default function ReviewForm() {
     transactionHash?: string;
     reviewId?: string;
     profileUsername?: string;
+    message?: string;
+    links?: {
+      ethosReview?: string;
+      basescan?: string;
+    };
   } | null>(null);
 
   useEffect(() => {
