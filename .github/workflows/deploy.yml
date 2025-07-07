@@ -10,7 +10,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     permissions:
       id-token: write # Needed for auth with Deno Deploy
@@ -25,39 +25,53 @@ jobs:
         with:
           deno-version: v2.x
 
+      - name: Verify repository structure
+        run: |
+          echo "📁 Repository structure:"
+          ls -la
+          echo "📄 Main files exist check:"
+          test -f main.ts && echo "✅ main.ts exists" || echo "❌ main.ts missing"
+          test -f fresh.gen.ts && echo "✅ fresh.gen.ts exists" || echo "❌ fresh.gen.ts missing"
+          test -f fresh.config.ts && echo "✅ fresh.config.ts exists" || echo "❌ fresh.config.ts missing"
+          test -f deno.json && echo "✅ deno.json exists" || echo "❌ deno.json missing"
+
       - name: Cache dependencies
         timeout-minutes: 5
         run: |
-          echo "Caching Deno dependencies..."
-          deno cache --reload deno.json
+          echo "🔄 Caching Deno dependencies..."
+          deno cache deno.json
+          echo "✅ Dependencies cached"
+
+      - name: Type check
+        timeout-minutes: 3
+        run: |
+          echo "🔍 Type checking..."
+          deno check --unstable-kv main.ts
+          echo "✅ Type check passed"
 
       - name: Build step
-        timeout-minutes: 5
+        timeout-minutes: 8
         run: |
-          echo "Starting build process..."
+          echo "🔨 Building application..."
           deno task build
+          echo "✅ Build completed"
+          echo "📁 Build output:"
+          ls -la _fresh/ || echo "No _fresh directory found"
 
-      - name: Upload to Deno Deploy
-        timeout-minutes: 5
+      - name: Deploy to Deno Deploy
+        timeout-minutes: 8
         uses: denoland/deployctl@v1
         with:
           project: "ethos-anonymous-reviews"
           entrypoint: "main.ts"
           root: "."
-          include: |
-            main.ts
-            fresh.gen.ts
-            fresh.config.ts
-            deno.json
-            routes/
-            islands/
-            components/
-            utils/
-            static/
-          exclude: |
-            .env
-            .env.*
-            node_modules/
-            .git/
           
-          
+      # Fallback: Try minimal deployment if main fails
+      - name: Deploy minimal version (fallback)
+        if: failure()
+        timeout-minutes: 5
+        uses: denoland/deployctl@v1
+        with:
+          project: "ethos-anonymous-reviews-minimal"
+          entrypoint: "main-minimal.ts"
+          root: "."
