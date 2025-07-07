@@ -97,45 +97,7 @@ export const handler: Handlers = {
 
       console.log("✅ Session verified for user:", session.user.username);
 
-      // 7. Check user's Ethos reputation score for slash eligibility
-      console.log("🔍 Checking user's Ethos reputation for slash eligibility...");
-      const reputationResponse = await fetch(`${req.url.split('/api/')[0]}/api/auth/reputation`, {
-        headers: {
-          'cookie': req.headers.get('cookie') || ''
-        }
-      });
-      
-      if (!reputationResponse.ok) {
-        console.log("❌ Failed to check user reputation");
-        return new Response(JSON.stringify({ error: "Failed to verify user reputation" }), {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      
-      const reputationData = await reputationResponse.json();
-      const userScore = reputationData.reputation?.score || 0;
-      const canSubmitSlash = userScore >= 1600;
-      
-      console.log("📊 User reputation check for slash:", {
-        username: session.user.username,
-        score: userScore,
-        threshold: 1600,
-        canSubmitSlash: canSubmitSlash
-      });
-      
-      if (!canSubmitSlash) {
-        console.log("❌ User does not meet slash requirement");
-        return new Response(JSON.stringify({ 
-          error: `Must have reputation score of 1600 or higher to submit slash requests. Your current score: ${userScore}`,
-          details: "Slash requests require a minimum Ethos reputation score of 1600."
-        }), {
-          status: 403,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      // 8. Rate limiting (per user)
+      // 7. Rate limiting (per user)
       const rateLimitKey = `slash_${session.user.id}`;
       if (!checkRateLimit(rateLimitKey, 3, 3600000)) { // 3 slash requests per hour
         console.log("❌ Rate limit exceeded for user:", session.user.username);
@@ -145,7 +107,7 @@ export const handler: Handlers = {
         });
       }
 
-      // 9. Validate content
+      // 8. Validate content
       const contentValidation = validateReviewContent(body.title, body.description);
       if (!contentValidation.valid) {
         console.log("❌ Content validation failed:", contentValidation.error);
@@ -155,7 +117,7 @@ export const handler: Handlers = {
         });
       }
 
-      // 10. Send Discord notification for slash request
+      // 9. Send Discord notification for slash request
       const reviewerReputationLevel = body.reviewerReputationLevel || "reputable";
       
       try {

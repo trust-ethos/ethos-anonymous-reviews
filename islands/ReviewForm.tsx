@@ -36,7 +36,7 @@ export default function ReviewForm() {
   const selectedProfile = useSignal<EthosProfile | null>(null);
   const reviewTitle = useSignal("");
   const reviewDescription = useSignal("");
-  const sentiment = useSignal<"negative" | "neutral" | "positive" | "slash" | "">("");
+  const sentiment = useSignal<"negative" | "neutral" | "positive" | "">("");
   const isSubmitting = useSignal(false);
   const reputationData = useSignal<ReputationData | null>(null);
   const isLoadingReputation = useSignal(true);
@@ -45,11 +45,6 @@ export default function ReviewForm() {
     transactionHash?: string;
     reviewId?: string;
     profileUsername?: string;
-    message?: string;
-    links?: {
-      ethosReview?: string;
-      basescan?: string;
-    };
   } | null>(null);
 
   useEffect(() => {
@@ -427,7 +422,7 @@ export default function ReviewForm() {
             { value: "negative", label: "Negative", color: "text-red-400 border-red-400", disabled: false },
             { value: "neutral", label: "Neutral", color: "text-yellow-400 border-yellow-400", disabled: false },
             { value: "positive", label: "Positive", color: "text-green-400 border-green-400", disabled: false },
-            ...(reputationData.value?.reputation?.score && reputationData.value.reputation.score >= 1600 ? [{ value: "slash", label: "Slash", color: "text-red-400 border-red-400", disabled: false }] : []),
+            { value: "slash", label: "Slash", color: "text-red-400 border-red-400", disabled: kairosScore.value < 1600 },
           ].map((option) => (
             <div key={option.value} class="relative">
               <button
@@ -441,13 +436,13 @@ export default function ReviewForm() {
                     ? `${option.color} bg-opacity-10`
                     : "border-neutral-700 text-neutral-400 hover:border-neutral-600"
                 }`}
-                title={option.disabled ? "Coming soon" : undefined}
+                title={option.disabled && option.value === "slash" ? "Unlocked at 1600 reputation" : undefined}
               >
                 {option.label}
               </button>
-              {option.disabled && (
+              {option.disabled && option.value === "slash" && (
                 <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-neutral-800 text-neutral-200 text-xs px-2 py-1 rounded shadow-lg opacity-0 hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                  Coming soon
+                  Unlocked at 1600 reputation
                 </div>
               )}
             </div>

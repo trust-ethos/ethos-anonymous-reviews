@@ -51,31 +51,19 @@ export function getBlockchainConfig(): BlockchainConfig {
   const isTestnet = Deno.env.get("BLOCKCHAIN_NETWORK") === "testnet";
   
   if (isTestnet) {
-    const config = {
+    return {
       rpcUrl: Deno.env.get("TESTNET_RPC_URL") || "https://sepolia.base.org",
       privateKey: Deno.env.get("TESTNET_PRIVATE_KEY") || "",
       contractAddress: Deno.env.get("TESTNET_CONTRACT_ADDRESS") || "",
       chainId: 84532 // Base Sepolia
     };
-    
-    if (!config.privateKey || !config.contractAddress) {
-      console.warn("⚠️ Testnet blockchain config incomplete - reviews will not work");
-    }
-    
-    return config;
   } else {
-    const config = {
+    return {
       rpcUrl: Deno.env.get("MAINNET_RPC_URL") || "https://mainnet.base.org",
       privateKey: Deno.env.get("MAINNET_PRIVATE_KEY") || "",
       contractAddress: Deno.env.get("MAINNET_CONTRACT_ADDRESS") || "0x6D3A8Fd5cF89f9a429BFaDFd970968F646AFF325",
       chainId: 8453 // Base Mainnet
     };
-    
-    if (!config.privateKey) {
-      console.warn("⚠️ Mainnet blockchain config incomplete - reviews will not work");
-    }
-    
-    return config;
   }
 }
 
@@ -225,7 +213,7 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
             }
           }
         } catch (parseError) {
-          console.log("❌ Error parsing log:", parseError instanceof Error ? parseError.message : String(parseError));
+          console.log("❌ Error parsing log:", parseError.message);
           // Continue to next log if this one fails to parse
           continue;
         }
@@ -248,7 +236,7 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
     };
   } catch (error) {
     console.error("Blockchain submission error:", error);
-    throw new Error(`Failed to submit review to blockchain: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(`Failed to submit review to blockchain: ${error.message}`);
   }
 }
 
