@@ -422,7 +422,7 @@ export default function ReviewForm() {
             { value: "negative", label: "Negative", color: "text-red-400 border-red-400", disabled: false },
             { value: "neutral", label: "Neutral", color: "text-yellow-400 border-yellow-400", disabled: false },
             { value: "positive", label: "Positive", color: "text-green-400 border-green-400", disabled: false },
-            { value: "slash", label: "Slash", color: "text-red-400 border-red-400", disabled: kairosScore.value < 1600 },
+            ...(kairosScore.value >= 1400 ? [{ value: "slash", label: "Slash", color: "text-red-400 border-red-400", disabled: false }] : []),
           ].map((option) => (
             <div key={option.value} class="relative">
               <button
@@ -436,13 +436,13 @@ export default function ReviewForm() {
                     ? `${option.color} bg-opacity-10`
                     : "border-neutral-700 text-neutral-400 hover:border-neutral-600"
                 }`}
-                title={option.disabled && option.value === "slash" ? "Unlocked at 1600 reputation" : undefined}
+                title={option.disabled ? "Coming soon" : undefined}
               >
                 {option.label}
               </button>
-              {option.disabled && option.value === "slash" && (
+              {option.disabled && (
                 <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-neutral-800 text-neutral-200 text-xs px-2 py-1 rounded shadow-lg opacity-0 hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                  Unlocked at 1600 reputation
+                  Coming soon
                 </div>
               )}
             </div>
