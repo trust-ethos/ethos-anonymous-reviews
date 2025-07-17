@@ -4,14 +4,23 @@ This guide explains how to set up Discord webhook notifications for new anonymou
 
 ## 🎯 What You'll Get
 
-When a new anonymous review is submitted, your Discord channel will receive a rich embed notification with:
+When a new anonymous review or slash request is submitted, your Discord channel will receive a rich embed notification with:
 
+**For Reviews:**
 - **Review Type**: Positive/Negative/Neutral (with color coding)
 - **Reviewer Level**: Reputable/Exemplary user indication
 - **Target Profile**: Link to the reviewed user's Ethos profile
 - **Review Content**: Title and description
 - **Blockchain Links**: BaseScan transaction and Ethos review links
-- **Privacy**: No user identity revealed - maintains anonymity
+
+**For Slash Requests:**
+- **Request Type**: Slash request (with red color coding)
+- **Requester Level**: Reputable+ user indication (anonymous)
+- **Target Profile**: Link to the user being slashed
+- **Slash Content**: Title and description of the request
+- **Manual Review**: Notification that manual processing is required
+
+**Privacy**: No user identity revealed - maintains complete anonymity for both reviews and slash requests
 
 ## 🔧 Discord Setup
 

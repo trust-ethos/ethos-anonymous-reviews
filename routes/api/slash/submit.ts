@@ -95,12 +95,12 @@ export const handler: Handlers = {
         });
       }
 
-      console.log("✅ Session verified for user:", session.user.username);
+      console.log("✅ Session verified for anonymous user");
 
       // 7. Rate limiting (per user)
       const rateLimitKey = `slash_${session.user.id}`;
       if (!checkRateLimit(rateLimitKey, 3, 3600000)) { // 3 slash requests per hour
-        console.log("❌ Rate limit exceeded for user:", session.user.username);
+        console.log("❌ Rate limit exceeded for anonymous user");
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait before submitting another slash request." }), {
           status: 429,
           headers: { "Content-Type": "application/json" },
@@ -126,7 +126,7 @@ export const handler: Handlers = {
           description: body.description,
           reviewerReputationLevel: reviewerReputationLevel,
           targetUsername: body.profileUsername,
-          requesterUsername: session.user.username, // Include requester for manual processing
+          // REMOVED: requesterUsername - this was breaking anonymity!
         });
         console.log("✅ Slash Discord notification sent");
       } catch (discordError) {

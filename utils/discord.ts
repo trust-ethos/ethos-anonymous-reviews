@@ -38,7 +38,6 @@ interface SlashNotificationData {
   description: string;
   reviewerReputationLevel: string;
   targetUsername: string;
-  requesterUsername: string;
 }
 
 // Discord color codes
@@ -226,7 +225,7 @@ export async function testDiscordWebhook(): Promise<boolean> {
 function createSlashEmbed(data: SlashNotificationData): DiscordEmbed {
   const embed: DiscordEmbed = {
     title: "🔥 New Slash Request",
-    description: `A **Reputable+** user (@${data.requesterUsername}) has requested a slash for **@${data.targetUsername}**`,
+    description: `A **Reputable+** user has requested a slash for **@${data.targetUsername}**`,
     color: 0xef4444, // Red color for slash requests
     fields: [
       {
@@ -237,11 +236,6 @@ function createSlashEmbed(data: SlashNotificationData): DiscordEmbed {
       {
         name: "Target User",
         value: `@${data.targetUsername}`,
-        inline: true
-      },
-      {
-        name: "Requester",
-        value: `@${data.requesterUsername}`,
         inline: true
       },
       {
@@ -295,7 +289,6 @@ export async function sendSlashNotification(data: SlashNotificationData): Promis
 
     console.log("📢 Sending Discord notification for slash request:", {
       target: data.targetUsername,
-      requester: data.requesterUsername,
       reviewerLevel: data.reviewerReputationLevel,
       profileUrl: profileUrl
     });
