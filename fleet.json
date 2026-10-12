@@ -2,9 +2,9 @@
   "$schema": "https://fleet.beta.ethos.network/schema/fleet.json",
   "name": "ethos-anonymous-reviews",
   "title": "Ethos Anonymous Reviews",
-  "description": "Anonymous reviews on Ethos",
+  "description": "Lets people who sign in with X leave a review of an Ethos profile without their name on it: the app posts the review onchain from its own wallet.",
   "status": "active",
-  "owner": "[OWNER EMAIL]",
+  "owner": "trevor@ethos.network",
   "repo": "trust-ethos/ethos-anonymous-reviews",
   "urls": [
     "https://anon.ethos.network",
@@ -13,36 +13,58 @@
   "access": "public",
   "services": [
     {
-      "name": "twitterapi",
-      "purpose": "[PURPOSE]",
-      "billing": "usage"
+      "name": "x-oauth",
+      "purpose": "Sign in with X (OAuth 2.0) to prove the reviewer is a real account",
+      "secret": "TWITTER_CLIENT_SECRET",
+      "console": "https://developer.x.com/en/portal/dashboard",
+      "billing": "free",
+      "notes": "Client id and redirect URI are plain env vars (TWITTER_CLIENT_ID, TWITTER_REDIRECT_URI)."
+    },
+    {
+      "name": "base-rpc",
+      "purpose": "Sends the review transaction to the Ethos review contract on Base",
+      "billing": "free",
+      "notes": "MAINNET_RPC_URL / TESTNET_RPC_URL are plain env vars (public Base RPCs by default). The posting wallet pays gas in ETH."
+    },
+    {
+      "name": "ethos-api",
+      "purpose": "Profile search and reviewer score checks",
+      "billing": "free"
+    },
+    {
+      "name": "discord",
+      "purpose": "Posts a notification for each new review",
+      "console": "https://discord.com",
+      "billing": "free",
+      "notes": "DISCORD_WEBHOOK_URL is a plain env var; ENABLE_DISCORD_NOTIFICATIONS turns it on."
     }
   ],
   "secrets": [
     {
       "name": "MAINNET_PRIVATE_KEY",
       "required": true,
-      "from": "[WHERE]"
+      "from": "Private key of the app's posting wallet on Base mainnet (team password manager); keep it funded with a little ETH for gas"
     },
     {
       "name": "SESSION_SECRET",
       "required": true,
-      "from": "[WHERE]"
+      "from": "Random string of at least 32 characters (openssl rand -base64 48)"
     },
     {
       "name": "TESTNET_PRIVATE_KEY",
-      "required": true,
-      "from": "[WHERE]"
+      "required": false,
+      "from": "Private key of a Base Sepolia wallet; only read when BLOCKCHAIN_NETWORK=testnet"
     },
     {
       "name": "TWITTER_CLIENT_SECRET",
       "required": true,
-      "from": "[WHERE]"
+      "from": "X developer portal → the app → Keys and tokens → OAuth 2.0 Client Secret",
+      "service": "x-oauth"
     }
   ],
   "spend": {
     "fixed": []
   },
-  "notes": "",
-  "tags": []
+  "notes": "Fresh app on Deno Deploy (project ethos). BLOCKCHAIN_NETWORK (plain var) picks mainnet or testnet; the contract address and RPC per network are plain vars too. Every review is signed by the app wallet, so its ETH balance is the only running cost. Privacy knobs (DISABLE_ALL_LOGS, ANONYMIZE_USER_IDS, ANONYMIZATION_SALT, REDACT_SENSITIVE_DATA) are optional; see PRIVACY_GUIDE.md.",
+  "tags": ["reviews", "onchain", "x-login", "public"]
 }
