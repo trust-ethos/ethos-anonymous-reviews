@@ -1,0 +1,48 @@
+{
+  "$schema": "https://fleet.beta.ethos.network/schema/fleet.json",
+  "name": "ethos-anonymous-reviews",
+  "title": "Ethos Anonymous Reviews",
+  "description": "Anonymous reviews on Ethos",
+  "status": "active",
+  "owner": "[OWNER EMAIL]",
+  "repo": "trust-ethos/ethos-anonymous-reviews",
+  "urls": [
+    "https://anon.ethos.network",
+    "https://ethos-anonymous-reviews.ethos.deno.net"
+  ],
+  "access": "public",
+  "services": [
+    {
+      "name": "twitterapi",
+      "purpose": "[PURPOSE]",
+      "billing": "usage"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "MAINNET_PRIVATE_KEY",
+      "required": true,
+      "from": "[WHERE]"
+    },
+    {
+      "name": "SESSION_SECRET",
+      "required": true,
+      "from": "[WHERE]"
+    },
+    {
+      "name": "TESTNET_PRIVATE_KEY",
+      "required": true,
+      "from": "[WHERE]"
+    },
+    {
+      "name": "TWITTER_CLIENT_SECRET",
+      "required": true,
+      "from": "[WHERE]"
+    }
+  ],
+  "spend": {
+    "fixed": []
+  },
+  "notes": "",
+  "tags": []
+}
