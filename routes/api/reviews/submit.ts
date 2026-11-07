@@ -1,5 +1,5 @@
 import { Handlers } from "$fresh/server.ts";
-import { submitReview, sentimentToScore, isValidEthereumAddress, type ReviewData, type ReviewSubmissionResult } from "../../../utils/blockchain.ts";
+import { submitReview, sentimentToScore, type ReviewData, type ReviewSubmissionResult } from "../../../utils/blockchain.ts";
 import { 
   verifySecureSession, 
   checkRateLimit, 
@@ -9,7 +9,8 @@ import {
   validateReviewContent,
   type SecureSession 
 } from "../../../utils/security.ts";
-import { sendReviewNotification, sendSimpleDiscordNotification } from "../../../utils/discord.ts";
+import { sendSimpleDiscordNotification } from "../../../utils/discord.ts";
+import { getReviewerReputation } from "../../../utils/reputation.ts";
 
 interface TwitterSession {
   user: {
@@ -31,7 +32,7 @@ interface SubmitReviewRequest {
   sentiment: "negative" | "neutral" | "positive";
   csrfToken: string; // CSRF protection
   requestNonce: string; // Prevent replay attacks
-  reviewerReputationLevel?: string; // Reputation level from UI (prevents re-fetch failures)
+  reviewerReputationLevel?: string; // Ignored: the server looks up the reviewer's level itself
 }
 
 interface EthosUser {
@@ -46,7 +47,7 @@ interface EthosUser {
   userkeys: string[];
   xpTotal: number;
   xpStreakDays: number;
-  stats: any;
+  stats: unknown;
 }
 
 type EthosUserResponse = EthosUser[];
@@ -192,11 +193,21 @@ export const handler: Handlers = {
         });
       }
 
-      // 4. Parse and validate request body
+      // 4. Server-side reputation gate (by X id, never username). Fails closed.
+      const reputation = await getReviewerReputation(session.user.id);
+      if (!reputation.ok) {
+        console.log("❌ Reputation requirement not met:", reputation.reason);
+        return new Response(JSON.stringify({ error: "Reputation requirement not met" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // 5. Parse and validate request body
       let body: SubmitReviewRequest;
       try {
         body = await req.json();
-      } catch (error) {
+      } catch (_error) {
         return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -212,7 +223,7 @@ export const handler: Handlers = {
         hasNonce: !!body.requestNonce
       });
 
-      // 5. Validate required fields
+      // 6. Validate required fields
       if (!body.profileUsername || !body.title || !body.description || !body.sentiment || !body.csrfToken || !body.requestNonce) {
         return new Response(JSON.stringify({ error: "Missing required fields" }), {
           status: 400,
@@ -220,7 +231,7 @@ export const handler: Handlers = {
         });
       }
 
-      // 6. Validate CSRF token
+      // 7. Validate CSRF token
       if (!validateCSRFToken(body.csrfToken)) {
         console.log("❌ Invalid CSRF token");
         return new Response(JSON.stringify({ error: "Invalid CSRF token" }), {
@@ -229,7 +240,7 @@ export const handler: Handlers = {
         });
       }
 
-      // 7. Validate and consume nonce (prevent replay attacks)
+      // 8. Validate and consume nonce (prevent replay attacks)
       if (!validateAndConsumeNonce(body.requestNonce)) {
         console.log("❌ Invalid or reused nonce - possible replay attack");
         return new Response(JSON.stringify({ error: "Invalid request nonce" }), {
@@ -238,7 +249,7 @@ export const handler: Handlers = {
         });
       }
 
-      // 8. Validate content
+      // 9. Validate content
       const contentValidation = validateReviewContent(body.title, body.description);
       if (!contentValidation.valid) {
         return new Response(JSON.stringify({ error: contentValidation.error }), {
@@ -247,7 +258,7 @@ export const handler: Handlers = {
         });
       }
 
-      // 9. Validate sentiment
+      // 10. Validate sentiment
       if (!["negative", "neutral", "positive"].includes(body.sentiment)) {
         return new Response(JSON.stringify({ error: "Invalid sentiment value" }), {
           status: 400,
@@ -255,7 +266,7 @@ export const handler: Handlers = {
         });
       }
 
-      // 10. Resolve X account ID for attestation
+      // 11. Resolve X account ID for attestation
       console.log("🔍 Resolving X account ID for attestation...");
       console.log("📋 Reviewer info:", {
         reviewerUsername: session.user.username,
@@ -287,45 +298,10 @@ export const handler: Handlers = {
         attestationTarget: `x.com/${xAccountId}`
       });
 
-      // 11. Get reviewer's reputation level for anonymous disclaimer
-      let reviewerReputationLevel = "reputable"; // Default fallback
-      
-      if (body.reviewerReputationLevel) {
-        // Use reputation level provided by UI (preferred method)
-        reviewerReputationLevel = body.reviewerReputationLevel.toLowerCase();
-        console.log("✅ Using reputation level from UI:", reviewerReputationLevel);
-      } else {
-        // Fallback: try to fetch reputation data (original method)
-        console.log("⚠️ No reputation level provided by UI, attempting to fetch...");
-        
-        const reputationResponse = await fetch(`${req.url.split('/api/')[0]}/api/auth/reputation`, {
-          headers: {
-            'cookie': req.headers.get('cookie') || ''
-          }
-        });
-        
-        if (reputationResponse.ok) {
-          const reputationData = await reputationResponse.json();
-          console.log("📊 Reputation data for disclaimer:", {
-            authenticated: reputationData.authenticated,
-            hasReputation: !!reputationData.reputation,
-            reputationLevel: reputationData.reputation?.level,
-            score: reputationData.reputation?.score
-          });
-          
-          if (reputationData.reputation?.level) {
-            // Use lowercase for display
-            reviewerReputationLevel = reputationData.reputation.level.toLowerCase();
-            console.log("✅ Using reputation level for disclaimer:", reviewerReputationLevel);
-          } else {
-            console.log("⚠️ No reputation level found, using default:", reviewerReputationLevel);
-          }
-        } else {
-          console.log("❌ Failed to fetch reputation data for disclaimer");
-        }
-      }
+      // 12. Disclaimer level comes only from the server-side reputation lookup
+      const reviewerReputationLevel = reputation.level;
 
-      // 12. Prepare review data for blockchain submission
+      // 13. Prepare review data for blockchain submission
       const sentimentScore = sentimentToScore(body.sentiment);
       console.log("🎯 Sentiment mapping:", {
         originalSentiment: body.sentiment,
@@ -361,7 +337,7 @@ export const handler: Handlers = {
         securityChecks: "✅ All passed"
       });
 
-      // 13. Submit to blockchain and wait for confirmation
+      // 14. Submit to blockchain and wait for confirmation
       console.log("🔗 Submitting review to blockchain, this may take 30-60 seconds...");
       const result: ReviewSubmissionResult = await submitReview(reviewData);
 
@@ -384,7 +360,7 @@ export const handler: Handlers = {
       }
 
       // Create response with review links
-      const response: any = {
+      const response: { success: boolean; transactionHash: string; reviewId?: string | number; message: string; links: Record<string, string> } = {
         success: true, 
         transactionHash: result.transactionHash,
         reviewId: result.reviewId,
