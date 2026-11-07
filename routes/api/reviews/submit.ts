@@ -288,7 +288,7 @@ export const handler: Handlers = {
       if (body.reviewerReputationLevel) {
         // Use reputation level provided by UI (preferred method)
         reviewerReputationLevel = body.reviewerReputationLevel.toLowerCase();
-        console.log("✅ Using reputation level from UI:", reviewerReputationLevel);
+        console.log("✅ Using reputation level from UI");
       } else {
         // Fallback: try to fetch reputation data (original method)
         console.log("⚠️ No reputation level provided by UI, attempting to fetch...");
@@ -303,17 +303,15 @@ export const handler: Handlers = {
           const reputationData = await reputationResponse.json();
           console.log("📊 Reputation data for disclaimer:", {
             authenticated: reputationData.authenticated,
-            hasReputation: !!reputationData.reputation,
-            reputationLevel: reputationData.reputation?.level,
-            score: reputationData.reputation?.score
+            hasReputation: !!reputationData.reputation
           });
           
           if (reputationData.reputation?.level) {
             // Use lowercase for display
             reviewerReputationLevel = reputationData.reputation.level.toLowerCase();
-            console.log("✅ Using reputation level for disclaimer:", reviewerReputationLevel);
+            console.log("✅ Using reputation level for disclaimer");
           } else {
-            console.log("⚠️ No reputation level found, using default:", reviewerReputationLevel);
+            console.log("⚠️ No reputation level found, using default");
           }
         } else {
           console.log("❌ Failed to fetch reputation data for disclaimer");
@@ -339,7 +337,6 @@ export const handler: Handlers = {
       };
 
       console.log("🔗 Submitting review to blockchain with data:", {
-        reviewerReputationLevel: reviewerReputationLevel,
         subject: body.profileUsername,
         subjectXAccountId: xAccountId,
         score: reviewData.score,

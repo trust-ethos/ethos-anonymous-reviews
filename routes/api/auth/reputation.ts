@@ -130,7 +130,7 @@ export const handler: Handlers = {
         reputationLevel = "reputable";
       }
 
-      console.log("✅ Ethos reputation found:", { found: true, reputationLevel, canSubmit });
+      console.log("✅ Ethos reputation found:", { found: true, canSubmit });
 
       return new Response(JSON.stringify({ 
         authenticated: true, 

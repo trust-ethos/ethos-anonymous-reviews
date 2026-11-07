@@ -108,7 +108,6 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
   // Prepare description with anonymous disclaimer
   const reputationLevel = "reputable+"; // Always use "reputable+" to protect anonymity
   console.log("🏷️ Creating anonymous disclaimer with reputation level:", {
-    provided: reviewData.reviewerReputationLevel,
     protected: reputationLevel,
     note: "Always showing 'reputable+' to protect reviewer anonymity"
   });
@@ -136,7 +135,7 @@ export async function submitReview(reviewData: ReviewData): Promise<ReviewSubmis
   
   try {
     console.log("🔗 Submitting review to blockchain with parameters:", {
-      score,
+      sentiment: score,
       subject: reviewData.subjectAddress,
       paymentToken: "0x0000000000000000000000000000000000000000",
       comment: reviewData.comment,
