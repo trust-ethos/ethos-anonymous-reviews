@@ -64,7 +64,7 @@ export const handler: Handlers = {
         });
       }
 
-      console.log("✅ User authenticated, checking Ethos reputation for:", session.user.username);
+      console.log("✅ User authenticated, checking Ethos reputation...");
 
       // Prepare request payload
       const requestPayload = {
@@ -74,7 +74,6 @@ export const handler: Handlers = {
       console.log("📤 Sending Ethos API request:", {
         url: 'https://api.ethos.network/api/v2/users/by/x',
         method: 'POST',
-        payload: requestPayload
       });
 
       // Check Ethos API for user reputation
@@ -88,7 +87,6 @@ export const handler: Handlers = {
       });
       
       console.log("📥 Ethos API response status:", ethosResponse.status);
-      console.log("📥 Ethos API response headers:", Object.fromEntries(ethosResponse.headers.entries()));
       
       if (!ethosResponse.ok) {
         const errorText = await ethosResponse.text();
@@ -106,7 +104,7 @@ export const handler: Handlers = {
       }
 
       const ethosData: EthosUserResponse = await ethosResponse.json();
-      console.log("📥 Ethos API response data:", JSON.stringify(ethosData, null, 2));
+      console.log("📥 Ethos API response data:", { found: Array.isArray(ethosData) && ethosData.length > 0 });
       
       if (!ethosData || ethosData.length === 0) {
         console.log("❌ No Ethos profile data found");
@@ -127,7 +125,7 @@ export const handler: Handlers = {
       const canSubmit = score >= MIN_SCORE;
       const reputationLevel = levelForScore(score) ?? "unknown";
 
-      console.log("✅ Ethos reputation found:", { username: session.user.username, score, reputationLevel, canSubmit });
+      console.log("✅ Ethos reputation found:", { found: true, canSubmit });
 
       return new Response(JSON.stringify({ 
         authenticated: true, 

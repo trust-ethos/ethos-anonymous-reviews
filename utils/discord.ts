@@ -173,7 +173,6 @@ export async function sendReviewNotification(data: ReviewNotificationData): Prom
     console.log("📢 Sending Discord notification for new review:", {
       sentiment: data.sentiment,
       target: data.targetUsername,
-      reviewerLevel: data.reviewerReputationLevel,
       hasReviewId: !!data.reviewId,
       profileUrl: profileUrl
     });
@@ -289,7 +288,6 @@ export async function sendSlashNotification(data: SlashNotificationData): Promis
 
     console.log("📢 Sending Discord notification for slash request:", {
       target: data.targetUsername,
-      reviewerLevel: data.reviewerReputationLevel,
       profileUrl: profileUrl
     });
 

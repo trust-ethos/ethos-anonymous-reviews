@@ -21,7 +21,7 @@ type EthosUserResponse = EthosUser[];
 // Debug function to test X account ID resolution
 async function debugResolveXAccountId(username: string) {
   try {
-    console.log("🐛 DEBUG: Resolving X account ID for:", username);
+    console.log("🐛 DEBUG: Resolving X account ID for test account...");
     
     const requestPayload = {
       accountIdsOrUsernames: [username]
@@ -92,7 +92,7 @@ async function debugResolveXAccountId(username: string) {
       result.primaryMethod = "userkeys";
       result.usingActualXId = true;
       
-      console.log("🐛 DEBUG: Userkeys method succeeded:", accountId);
+      console.log("🐛 DEBUG: Userkeys method succeeded");
       return result;
     } else {
       result.methods.userkeysMethod = {
@@ -126,7 +126,7 @@ async function debugResolveXAccountId(username: string) {
           result.primaryMethod = "twitterApi";
           result.usingActualXId = true;
           
-          console.log("🐛 DEBUG: Twitter API method succeeded:", xAccountId);
+          console.log("🐛 DEBUG: Twitter API method succeeded");
           return result;
         } else {
           result.methods.twitterApiMethod = {
@@ -157,7 +157,7 @@ async function debugResolveXAccountId(username: string) {
     result.attestationTarget = null;
     result.recommendation = "User must have their X.com account properly linked in their Ethos profile, or the Twitter API must be accessible";
     
-    console.log("🐛 DEBUG: Both methods failed for:", username);
+    console.log("🐛 DEBUG: Both methods failed for test account");
     return result;
     
   } catch (error) {
@@ -217,7 +217,7 @@ export const handler: Handlers = {
         });
       }
 
-      console.log("🐛 DEBUG: Testing X account resolution for:", testUsername, "requested by:", session.user.username);
+      console.log("🐛 DEBUG: Testing X account resolution for test account");
       
       const result = await debugResolveXAccountId(testUsername);
       

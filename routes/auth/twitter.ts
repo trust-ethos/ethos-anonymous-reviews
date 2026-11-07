@@ -20,7 +20,7 @@ export const handler: Handlers = {
     const isProduction = false;
     const cookieFlags = isProduction ? "HttpOnly; Secure; SameSite=Lax" : "HttpOnly; SameSite=Lax";
     
-    console.log("🍪 Setting state cookie...", { state, isProduction, cookieFlags });
+    console.log("🍪 Setting state cookie...", { hasState: !!state, isProduction, cookieFlags });
     
     // Store state in a cookie for verification later
     const response = new Response(null, {
@@ -40,7 +40,7 @@ export const handler: Handlers = {
     authUrl.searchParams.set("code_challenge", "challenge");
     authUrl.searchParams.set("code_challenge_method", "plain");
 
-    console.log("🔗 Redirecting to Twitter:", authUrl.toString());
+    console.log("🔗 Redirecting to Twitter authorize endpoint", { host: authUrl.host });
     
     response.headers.set("Location", authUrl.toString());
     return response;

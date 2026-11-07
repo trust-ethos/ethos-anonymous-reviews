@@ -69,7 +69,7 @@ export async function getReviewerReputation(
 
   const level = levelForScore(score);
   if (!level) {
-    return { ok: false, reason: `Score ${score} is below ${MIN_SCORE}` };
+    return { ok: false, reason: `Score is below ${MIN_SCORE}` };
   }
 
   return { ok: true, score, level };

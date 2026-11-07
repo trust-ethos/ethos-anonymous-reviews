@@ -53,7 +53,7 @@ export const handler: Handlers = {
       
       // If testUsername is provided, debug that user's X account ID resolution
       if (testUsername) {
-        console.log("🐛 DEBUG: Testing X account ID resolution for:", testUsername);
+        console.log("🐛 DEBUG: Testing X account ID resolution for test account");
         
         const requestPayload = {
           accountIdsOrUsernames: [testUsername]
@@ -127,15 +127,11 @@ export const handler: Handlers = {
       }
 
       console.log("🐛 DEBUG: Authenticated user debug request");
-      console.log("🐛 DEBUG: Session user ID:", session.user.id);
-      console.log("🐛 DEBUG: Session user username:", session.user.username);
 
       // Test the exact API call we're making
       const requestPayload = {
         accountIdsOrUsernames: [session.user.username]
       };
-      
-      console.log("🐛 DEBUG: API request payload:", requestPayload);
 
       const ethosResponse = await fetch('https://api.ethos.network/api/v2/users/by/x', {
         method: 'POST',
@@ -150,7 +146,7 @@ export const handler: Handlers = {
       console.log("🐛 DEBUG: Ethos API response headers:", Object.fromEntries(ethosResponse.headers.entries()));
       
       const responseText = await ethosResponse.text();
-      console.log("🐛 DEBUG: Raw API response:", responseText);
+      console.log("🐛 DEBUG: Raw API response length:", responseText.length);
       
       let ethosData: EthosUserResponse;
       try {
@@ -184,12 +180,9 @@ export const handler: Handlers = {
       const canSubmit = score >= 1600;
       
       console.log("🐛 DEBUG: Final evaluation:", {
-        username: session.user.username,
-        foundProfile: userProfile.username,
-        score: score,
+        foundProfile: !!userProfile,
         threshold: 1600,
         canSubmit: canSubmit,
-        scoreCheck: `${score} >= 1600 = ${score >= 1600}`
       });
 
       return new Response(JSON.stringify({

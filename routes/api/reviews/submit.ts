@@ -55,7 +55,7 @@ type EthosUserResponse = EthosUser[];
 // Function to resolve X account ID from Ethos API
 async function resolveXAccountId(username: string): Promise<string | null> {
   try {
-    console.log("🔍 Resolving X account ID for:", username);
+    console.log("🔍 Resolving X account ID for review target...");
     
     const requestPayload = {
       accountIdsOrUsernames: [username]
@@ -78,19 +78,16 @@ async function resolveXAccountId(username: string): Promise<string | null> {
     const ethosData: EthosUserResponse = await ethosResponse.json();
     
     if (!ethosData || ethosData.length === 0) {
-      console.log("❌ No Ethos profile found for:", username);
+      console.log("❌ No Ethos profile found for review target");
       return null;
     }
 
     const userProfile = ethosData[0];
     
     // Debug logging for userkeys
-    console.log("🔍 Debug: Full user profile data for", username, ":", {
-      id: userProfile.id,
-      profileId: userProfile.profileId,
-      username: userProfile.username,
-      userkeys: userProfile.userkeys,
-      userkeyCount: userProfile.userkeys?.length || 0
+    console.log("🔍 Debug: Target profile userkeys:", {
+      hasProfileId: !!userProfile.profileId,
+      userkeyCount: userProfile.userkeys?.length || 0,
     });
     
     // First try: Look for X.com service key in userkeys
@@ -100,7 +97,7 @@ async function resolveXAccountId(username: string): Promise<string | null> {
     
     if (xServiceKey) {
       const accountId = xServiceKey.replace('service:x.com:', '');
-      console.log("✅ Found X account ID for", username, ":", accountId);
+      console.log("✅ Found X account ID in userkeys:", accountId);
       console.log("🎯 Will create attestation for: x.com/" + accountId + " (using actual X.com user ID from userkeys)");
       return accountId;
     }
@@ -122,7 +119,7 @@ async function resolveXAccountId(username: string): Promise<string | null> {
         
         if (twitterUserData.ok && twitterUserData.data && twitterUserData.data.id) {
           const xAccountId = twitterUserData.data.id;
-          console.log("✅ Found X account ID via Twitter user API for", username, ":", xAccountId);
+          console.log("✅ Found X account ID via Twitter user API:", xAccountId);
           console.log("🎯 Will create attestation for: x.com/" + xAccountId + " (using actual X.com user ID from Twitter API)");
           return xAccountId;
         } else {
@@ -136,8 +133,8 @@ async function resolveXAccountId(username: string): Promise<string | null> {
     }
     
     // Both methods failed - refuse to fall back to username
-    console.log("❌ Both X service key lookup and Twitter user API failed for:", username);
-    console.log("🚫 Refusing to fall back to username - failing request for data integrity");
+    console.log("❌ Both X service key lookup and Twitter user API failed for review target");
+    console.log("🚫 Refusing to fall back to the X handle - failing request for data integrity");
     
     return null; // Return null to indicate failure
   } catch (error) {
@@ -186,7 +183,7 @@ export const handler: Handlers = {
       // 3. Rate limiting per user
       const rateLimitKey = `review_submit_${session.user.id}`;
       if (!checkRateLimit(rateLimitKey, 3, 300000)) { // 3 requests per 5 minutes
-        console.log("❌ Rate limit exceeded for user:", session.user.username);
+        console.log("❌ Rate limit exceeded for authenticated reviewer");
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait before submitting another review." }), {
           status: 429,
           headers: { "Content-Type": "application/json" },
@@ -268,10 +265,8 @@ export const handler: Handlers = {
 
       // 11. Resolve X account ID for attestation
       console.log("🔍 Resolving X account ID for attestation...");
-      console.log("📋 Reviewer info:", {
-        reviewerUsername: session.user.username,
-        reviewerXId: session.user.id,
-        targetUsername: body.profileUsername
+      console.log("📋 Review target:", {
+        targetUsername: body.profileUsername,
       });
       
       const xAccountId = await resolveXAccountId(body.profileUsername);
@@ -320,15 +315,12 @@ export const handler: Handlers = {
       };
 
       console.log("🔗 Submitting review to blockchain with data:", {
-        reviewer: session.user.username,
-        reviewerXId: session.user.id,
-        reviewerReputationLevel: reviewerReputationLevel,
         subject: body.profileUsername,
         subjectXAccountId: xAccountId,
         score: reviewData.score,
         sentiment: body.sentiment,
-        title: body.title,
-        description: body.description,
+        titleLength: body.title.length,
+        descriptionLength: body.description.length,
         subjectAddress: reviewData.subjectAddress,
         paymentToken: "0x0000000000000000000000000000000000000000",
         attestationService: "x.com",
