@@ -40,7 +40,7 @@ export const handler: Handlers = {
 
       console.log("📝 Slash request data:", {
         profileUsername: body.profileUsername,
-        title: body.title,
+        titleLength: body.title?.length || 0,
         hasDescription: !!body.description,
         hasCSRF: !!body.csrfToken,
         hasNonce: !!body.requestNonce

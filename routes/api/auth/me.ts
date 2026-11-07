@@ -36,7 +36,7 @@ export const handler: Handlers = {
       const sessionData = sessionCookie.split("=")[1];
       const session: TwitterSession = JSON.parse(atob(sessionData));
 
-      console.log("✅ Session parsed:", { username: session.user.username, expiresAt: new Date(session.expiresAt) });
+      console.log("✅ Session parsed:", { expiresAt: new Date(session.expiresAt) });
 
       // Check if session is expired
       if (Date.now() > session.expiresAt) {
@@ -47,7 +47,7 @@ export const handler: Handlers = {
         });
       }
 
-      console.log("✅ User authenticated:", session.user.username);
+      console.log("✅ User authenticated");
       return new Response(JSON.stringify({ 
         authenticated: true, 
         user: session.user 
