@@ -33,10 +33,11 @@ export const handler: Handlers = {
     const stateCookie = cookies.split(";").find(c => c.trim().startsWith("twitter_oauth_state="));
     const expectedState = stateCookie?.split("=")[1];
 
-    console.log("🍪 State verification:", { received: state, expected: expectedState });
+    const stateMatches = !!state && !!expectedState && state === expectedState;
+    console.log("🍪 State verification:", { stateMatches });
 
     if (!code || !state || state !== expectedState) {
-      console.error("❌ Invalid OAuth callback:", { code: !!code, state, expectedState });
+      console.error("❌ Invalid OAuth callback:", { code: !!code, stateMatches });
       return new Response("Invalid OAuth callback", { status: 400 });
     }
 
@@ -83,7 +84,7 @@ export const handler: Handlers = {
       const userData = await userResponse.json();
       const user: TwitterUser = userData.data;
       
-      console.log("✅ User data received:", { username: user.username, name: user.name });
+      console.log("✅ User data received:", { hasId: !!user?.id, hasUsername: !!user?.username });
 
       // Create secure session cookie with user data
       const sessionData = {
@@ -102,7 +103,7 @@ export const handler: Handlers = {
       const secureSessionData = await createSecureSession(sessionData);
 
       // Determine if we're in production (HTTPS) or development (HTTP)
-      console.log("🔍 URL details:", { hostname: url.hostname, protocol: url.protocol, href: url.href });
+      console.log("🔍 URL details:", { hostname: url.hostname, protocol: url.protocol });
       // Force development mode for now to fix cookie issues
       const isProduction = false;
       const cookieFlags = isProduction ? "HttpOnly; Secure; SameSite=Lax" : "HttpOnly; SameSite=Lax";
@@ -112,7 +113,7 @@ export const handler: Handlers = {
       const sessionCookie = `twitter_session=${secureSessionData}; Path=/; ${cookieFlags}; Max-Age=${tokenData.expires_in}`;
       const clearStateCookie = `twitter_oauth_state=; Path=/; ${cookieFlags}; Max-Age=0`;
       
-      console.log("🍪 Cookie strings:", { sessionCookie, clearStateCookie });
+      console.log("🍪 Cookies prepared:", { sessionSet: true, stateCleared: true, maxAge: tokenData.expires_in });
 
       const headers = new Headers();
       headers.set("Location", "/");

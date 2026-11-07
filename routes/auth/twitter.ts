@@ -20,7 +20,7 @@ export const handler: Handlers = {
     const isProduction = false;
     const cookieFlags = isProduction ? "HttpOnly; Secure; SameSite=Lax" : "HttpOnly; SameSite=Lax";
     
-    console.log("🍪 Setting state cookie...", { state, isProduction, cookieFlags });
+    console.log("🍪 Setting state cookie...", { hasState: !!state, isProduction, cookieFlags });
     
     // Store state in a cookie for verification later
     const response = new Response(null, {
