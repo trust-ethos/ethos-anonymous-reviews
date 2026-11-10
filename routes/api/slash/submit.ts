@@ -1,6 +1,7 @@
 import { Handlers } from "$fresh/server.ts";
 import { verifySecureSession, validateCSRFToken, validateAndConsumeNonce, checkRateLimit, validateOrigin, validateReviewContent } from "../../../utils/security.ts";
 import { sendSlashNotification } from "../../../utils/discord.ts";
+import { getReviewerReputation } from "../../../utils/reputation.ts";
 
 interface SubmitSlashRequest {
   profileId: number;
@@ -9,7 +10,7 @@ interface SubmitSlashRequest {
   description: string;
   csrfToken: string;
   requestNonce: string;
-  reviewerReputationLevel?: string;
+  reviewerReputationLevel?: string; // Ignored: the server looks up the reviewer's level itself
 }
 
 export const handler: Handlers = {
@@ -107,7 +108,17 @@ export const handler: Handlers = {
         });
       }
 
-      // 8. Validate content
+      // 8. Server-side reputation gate (by X id, never username). Fails closed.
+      const reputation = await getReviewerReputation(session.user.id);
+      if (!reputation.ok) {
+        console.log("❌ Reputation requirement not met:", reputation.reason);
+        return new Response(JSON.stringify({ error: "Reputation requirement not met" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // 9. Validate content
       const contentValidation = validateReviewContent(body.title, body.description);
       if (!contentValidation.valid) {
         console.log("❌ Content validation failed:", contentValidation.error);
@@ -117,8 +128,8 @@ export const handler: Handlers = {
         });
       }
 
-      // 9. Send Discord notification for slash request
-      const reviewerReputationLevel = body.reviewerReputationLevel || "reputable";
+      // 10. Send Discord notification for slash request (level from the server lookup only)
+      const reviewerReputationLevel = reputation.level;
       
       try {
         await sendSlashNotification({

@@ -40,6 +40,7 @@ import src24 from "../utils/blockchain.ts" with { type: "text" };
 import src25 from "../utils/discord.ts" with { type: "text" };
 import src26 from "../utils/privacy.ts" with { type: "text" };
 import src27 from "../utils/security.ts" with { type: "text" };
+import src28 from "../utils/reputation.ts" with { type: "text" };
 
 /** Source text by repo-relative path. Add a line here for every new file. */
 const SOURCES: Record<string, string> = {
@@ -69,6 +70,7 @@ const SOURCES: Record<string, string> = {
   "utils/blockchain.ts": src24,
   "utils/discord.ts": src25,
   "utils/privacy.ts": src26, // not imported by any route; still scanned
+  "utils/reputation.ts": src28,
   "utils/security.ts": src27,
 };
 

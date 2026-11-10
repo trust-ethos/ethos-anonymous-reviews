@@ -1,5 +1,6 @@
 import { Handlers } from "$fresh/server.ts";
 import { verifySecureSession, type SecureSession } from "../../../utils/security.ts";
+import { levelForScore, MIN_SCORE } from "../../../utils/reputation.ts";
 
 interface TwitterSession {
   user: {
@@ -24,7 +25,7 @@ interface EthosUser {
   userkeys: string[];
   xpTotal: number;
   xpStreakDays: number;
-  stats: any;
+  stats: unknown;
 }
 
 type EthosUserResponse = EthosUser[];
@@ -121,14 +122,8 @@ export const handler: Handlers = {
 
       const userProfile = ethosData[0]; // Get the first (and should be only) user
       const score = userProfile.score;
-      const canSubmit = score >= 1600;
-      
-      let reputationLevel = "unknown";
-      if (score >= 2000) {
-        reputationLevel = "exemplary";
-      } else if (score >= 1600) {
-        reputationLevel = "reputable";
-      }
+      const canSubmit = score >= MIN_SCORE;
+      const reputationLevel = levelForScore(score) ?? "unknown";
 
       console.log("✅ Ethos reputation found:", { found: true, canSubmit });
 
@@ -140,7 +135,7 @@ export const handler: Handlers = {
           score,
           level: reputationLevel,
           canSubmit,
-          reason: canSubmit ? null : `Must be reputable to submit (score ≥ 1600). Your current score: ${score}`
+          reason: canSubmit ? null : `Must be reputable to submit (score ≥ ${MIN_SCORE}). Your current score: ${score}`
         }
       }), {
         headers: { 
