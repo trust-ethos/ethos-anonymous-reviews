@@ -1,8 +1,13 @@
 import { type PageProps } from "$fresh/server.ts";
+import { ethosDark } from "../static/ds/tokens/ethos.tokens.ts";
+
+// The browser chrome matches the page background; a meta tag cannot read a CSS variable, so this is
+// the same token (--ethos-bg-base, dark) from the design system's constants.
+const THEME_COLOR = ethosDark.bg.base;
 
 export default function App({ Component, url }: PageProps) {
   return (
-    <html>
+    <html data-theme="dark">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -33,13 +38,17 @@ export default function App({ Component, url }: PageProps) {
         <meta name="twitter:image:alt" content="Anonymous figure representing anonymous reviews" />
         
         {/* Additional Meta Tags */}
-        <meta name="theme-color" content="#0a0a0a" />
-        <meta name="msapplication-TileColor" content="#0a0a0a" />
+        <meta name="theme-color" content={THEME_COLOR} />
+        <meta name="msapplication-TileColor" content={THEME_COLOR} />
         <link rel="canonical" href={url.href} />
         
+        {/* Ethos design system, copied into static/ds by scripts/sync-design-system.sh */}
+        <link rel="stylesheet" href="/ds/tokens/ethos.css" />
+        <link rel="stylesheet" href="/ds/tokens/ethos.icons.css" />
+        <link rel="stylesheet" href="/ds/components.css" />
         <link rel="stylesheet" href="/styles.css" />
       </head>
-      <body class="bg-neutral-950 text-white min-h-screen">
+      <body class="min-h-screen">
         <Component />
       </body>
     </html>
