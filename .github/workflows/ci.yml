@@ -1,0 +1,33 @@
+# Runs the app's own checks (typecheck + tests) on every pull request and on every push to main. Kept cheap on
+# purpose: one job, no matrix, a new push cancels the run in progress, and a 10-minute cap.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      # Nothing in the repo pins Deno; the README says v2.x.
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.x
+      # The typecheck half of the `check` task in deno.json. Not `deno task check`: that also runs `deno fmt --check`
+      # and `deno lint`, which do not pass on main yet. The globs are quoted so Deno expands them: bash without
+      # globstar would only match files exactly one folder deep.
+      - run: deno check '**/*.ts' '**/*.tsx'
+      - run: deno task test
