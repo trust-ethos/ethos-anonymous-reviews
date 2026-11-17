@@ -22,7 +22,7 @@ export default function EthosProfileSearch({ selectedProfile, onProfileSelect }:
   const searchResults = useSignal<EthosProfile[]>([]);
   const isSearching = useSignal(false);
   const showResults = useSignal(false);
-  const debounceTimeout = useSignal<number | null>(null);
+  const debounceTimeout = useSignal<ReturnType<typeof setTimeout> | null>(null);
 
   const searchProfiles = async (query: string) => {
     if (!query.trim()) {
