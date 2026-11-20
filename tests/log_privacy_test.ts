@@ -26,7 +26,6 @@ import src12 from "../routes/api/debug/reputation.ts" with { type: "text" };
 import src13 from "../routes/api/debug/x-account-resolution.ts" with {
   type: "text",
 };
-import src14 from "../routes/api/discord/test.ts" with { type: "text" };
 import src15 from "../routes/api/joke.ts" with { type: "text" };
 import src16 from "../routes/api/kairos-stats.ts" with { type: "text" };
 import src17 from "../routes/api/reviews/submit.ts" with { type: "text" };
@@ -58,7 +57,6 @@ const SOURCES: Record<string, string> = {
   "routes/api/auth/reputation.ts": src11,
   "routes/api/debug/reputation.ts": src12,
   "routes/api/debug/x-account-resolution.ts": src13,
-  "routes/api/discord/test.ts": src14,
   "routes/api/joke.ts": src15,
   "routes/api/kairos-stats.ts": src16,
   "routes/api/reviews/submit.ts": src17,
