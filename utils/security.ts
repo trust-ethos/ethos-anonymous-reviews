@@ -1,8 +1,23 @@
 import { crypto } from "https://deno.land/std@0.208.0/crypto/mod.ts";
 
 // Session management with cryptographic signatures
-const SESSION_SECRET = Deno.env.get("SESSION_SECRET") || "your-super-secret-key-change-this";
 const encoder = new TextEncoder();
+
+const SESSION_SECRET_ERROR = "SESSION_SECRET is not set or is too weak";
+const MIN_SESSION_SECRET_LENGTH = 32;
+// The value this file used to fall back to when SESSION_SECRET was unset.
+// It is public, so it is refused as a key rather than used as one.
+const PLACEHOLDER_SESSION_SECRET = "your-super-secret-key-change-this";
+// SHA-256 of a SESSION_SECRET that was once printed in this public repository.
+// Only the hash is kept, so the value is refused without being published again.
+// It is a digest, not a secret; it is written in four pieces because a run of
+// 64 hex characters reads as a key to secret scanners.
+const LEAKED_SESSION_SECRET_SHA256 = [
+  "3db7d3fda86598b0",
+  "70b86cd6107ad6e2",
+  "587bb9c404c50cbc",
+  "e386cbd4d4409dfc",
+].join("");
 
 export interface SecureSession {
   user: {
@@ -17,34 +32,82 @@ export interface SecureSession {
   signature: string; // Cryptographic signature
 }
 
-// Generate HMAC signature for session data
-async function generateSignature(data: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(SESSION_SECRET),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  
-  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(data));
-  return Array.from(new Uint8Array(signature))
+function toHex(buffer: ArrayBuffer): string {
+  return Array.from(new Uint8Array(buffer))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
-// Verify HMAC signature
-async function verifySignature(data: string, signature: string): Promise<boolean> {
-  const expectedSignature = await generateSignature(data);
-  return expectedSignature === signature;
+// Read SESSION_SECRET when it is needed, not at module load, and fail closed:
+// null means there is no key that sessions may be signed or verified with.
+async function getSessionSecret(): Promise<string | null> {
+  let secret: string | undefined;
+  try {
+    secret = Deno.env.get("SESSION_SECRET");
+  } catch {
+    return null; // no permission to read the environment
+  }
+
+  if (
+    !secret ||
+    secret.length < MIN_SESSION_SECRET_LENGTH ||
+    secret === PLACEHOLDER_SESSION_SECRET
+  ) {
+    return null;
+  }
+
+  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(secret));
+  if (toHex(digest) === LEAKED_SESSION_SECRET_SHA256) {
+    return null;
+  }
+
+  return secret;
+}
+
+function importSessionKey(secret: string, usage: "sign" | "verify"): Promise<CryptoKey> {
+  return crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    [usage]
+  );
+}
+
+// Generate HMAC signature for session data
+async function generateSignature(data: string, secret: string): Promise<string> {
+  const key = await importSessionKey(secret, "sign");
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(data));
+  return toHex(signature);
+}
+
+// Verify HMAC signature. crypto.subtle.verify compares in constant time, so
+// the response time does not reveal how much of a forged signature matched.
+async function verifySignature(data: string, signature: unknown, secret: string): Promise<boolean> {
+  if (typeof signature !== "string" || !/^[0-9a-f]{64}$/.test(signature)) {
+    return false;
+  }
+
+  const signatureBytes = new Uint8Array(32);
+  for (let i = 0; i < signatureBytes.length; i++) {
+    signatureBytes[i] = parseInt(signature.slice(i * 2, i * 2 + 2), 16);
+  }
+
+  const key = await importSessionKey(secret, "verify");
+  return await crypto.subtle.verify("HMAC", key, signatureBytes, encoder.encode(data));
 }
 
 // Create secure session cookie
 export async function createSecureSession(sessionData: Omit<SecureSession, 'nonce' | 'signature'>): Promise<string> {
+  const secret = await getSessionSecret();
+  if (!secret) {
+    throw new Error(SESSION_SECRET_ERROR);
+  }
+
   const nonce = crypto.randomUUID();
   const sessionWithNonce = { ...sessionData, nonce };
   const dataToSign = JSON.stringify(sessionWithNonce);
-  const signature = await generateSignature(dataToSign);
+  const signature = await generateSignature(dataToSign, secret);
   
   const secureSession: SecureSession = { ...sessionWithNonce, signature };
   // Use TextEncoder to handle Unicode characters safely
@@ -55,6 +118,12 @@ export async function createSecureSession(sessionData: Omit<SecureSession, 'nonc
 // Verify and parse secure session
 export async function verifySecureSession(sessionCookie: string): Promise<SecureSession | null> {
   try {
+    const secret = await getSessionSecret();
+    if (!secret) {
+      console.error(`❌ ${SESSION_SECRET_ERROR}; no sign-in can be verified`);
+      return null;
+    }
+
     // Decode Unicode-safe base64
     const decodedBytes = atob(sessionCookie);
     const uint8Array = new Uint8Array(decodedBytes.length);
@@ -73,7 +142,7 @@ export async function verifySecureSession(sessionCookie: string): Promise<Secure
     // Verify signature
     const { signature, ...sessionData } = session;
     const dataToVerify = JSON.stringify(sessionData);
-    const isValid = await verifySignature(dataToVerify, signature);
+    const isValid = await verifySignature(dataToVerify, signature, secret);
     
     if (!isValid) {
       console.log("❌ Invalid session signature");

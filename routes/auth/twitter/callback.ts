@@ -100,7 +100,18 @@ export const handler: Handlers = {
 
       // Import security utilities
       const { createSecureSession } = await import("../../../utils/security.ts");
-      const secureSessionData = await createSecureSession(sessionData);
+      let secureSessionData: string;
+      try {
+        secureSessionData = await createSecureSession(sessionData);
+      } catch (error) {
+        // Thrown when SESSION_SECRET is missing or too weak to sign with.
+        // Log the reason only: the page must not show it, or a stack.
+        console.error("❌ Could not sign in:", error instanceof Error ? error.message : "unknown error");
+        return new Response("Sign-in is unavailable right now. Please try again later.", {
+          status: 500,
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        });
+      }
 
       // Determine if we're in production (HTTPS) or development (HTTP)
       console.log("🔍 URL details:", { hostname: url.hostname, protocol: url.protocol });
