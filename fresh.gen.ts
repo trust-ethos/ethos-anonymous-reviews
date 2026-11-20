@@ -9,7 +9,6 @@ import * as $api_auth_me from "./routes/api/auth/me.ts";
 import * as $api_auth_reputation from "./routes/api/auth/reputation.ts";
 import * as $api_debug_reputation from "./routes/api/debug/reputation.ts";
 import * as $api_debug_x_account_resolution from "./routes/api/debug/x-account-resolution.ts";
-import * as $api_discord_test from "./routes/api/discord/test.ts";
 import * as $api_joke from "./routes/api/joke.ts";
 import * as $api_kairos_stats from "./routes/api/kairos-stats.ts";
 import * as $api_reviews_submit from "./routes/api/reviews/submit.ts";
@@ -36,7 +35,6 @@ const manifest = {
     "./routes/api/debug/reputation.ts": $api_debug_reputation,
     "./routes/api/debug/x-account-resolution.ts":
       $api_debug_x_account_resolution,
-    "./routes/api/discord/test.ts": $api_discord_test,
     "./routes/api/joke.ts": $api_joke,
     "./routes/api/kairos-stats.ts": $api_kairos_stats,
     "./routes/api/reviews/submit.ts": $api_reviews_submit,
