@@ -8,6 +8,12 @@ const MIN_SESSION_SECRET_LENGTH = 32;
 // The value this file used to fall back to when SESSION_SECRET was unset.
 // It is public, so it is refused as a key rather than used as one.
 const PLACEHOLDER_SESSION_SECRET = "your-super-secret-key-change-this";
+// The value env.example shipped for SESSION_SECRET. It is public too, and long
+// enough to pass the length check, so a copied env.example must not work.
+const EXAMPLE_SESSION_SECRET =
+  "your_super_secret_session_key_change_this_in_production_use_at_least_32_characters";
+// A long secret is still guessable when it is one character repeated.
+const MIN_SESSION_SECRET_DISTINCT_CHARACTERS = 8;
 // SHA-256 of a SESSION_SECRET that was once printed in this public repository.
 // Only the hash is kept, so the value is refused without being published again.
 // It is a digest, not a secret; it is written in four pieces because a run of
@@ -34,8 +40,8 @@ export interface SecureSession {
 
 function toHex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 // Read SESSION_SECRET when it is needed, not at module load, and fail closed:
@@ -51,7 +57,10 @@ async function getSessionSecret(): Promise<string | null> {
   if (
     !secret ||
     secret.length < MIN_SESSION_SECRET_LENGTH ||
-    secret === PLACEHOLDER_SESSION_SECRET
+    secret === PLACEHOLDER_SESSION_SECRET ||
+    secret === EXAMPLE_SESSION_SECRET ||
+    secret.trim() === "" ||
+    new Set(secret).size < MIN_SESSION_SECRET_DISTINCT_CHARACTERS
   ) {
     return null;
   }
@@ -64,18 +73,24 @@ async function getSessionSecret(): Promise<string | null> {
   return secret;
 }
 
-function importSessionKey(secret: string, usage: "sign" | "verify"): Promise<CryptoKey> {
+function importSessionKey(
+  secret: string,
+  usage: "sign" | "verify",
+): Promise<CryptoKey> {
   return crypto.subtle.importKey(
     "raw",
     encoder.encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    [usage]
+    [usage],
   );
 }
 
 // Generate HMAC signature for session data
-async function generateSignature(data: string, secret: string): Promise<string> {
+async function generateSignature(
+  data: string,
+  secret: string,
+): Promise<string> {
   const key = await importSessionKey(secret, "sign");
   const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(data));
   return toHex(signature);
@@ -83,7 +98,11 @@ async function generateSignature(data: string, secret: string): Promise<string> 
 
 // Verify HMAC signature. crypto.subtle.verify compares in constant time, so
 // the response time does not reveal how much of a forged signature matched.
-async function verifySignature(data: string, signature: unknown, secret: string): Promise<boolean> {
+async function verifySignature(
+  data: string,
+  signature: unknown,
+  secret: string,
+): Promise<boolean> {
   if (typeof signature !== "string" || !/^[0-9a-f]{64}$/.test(signature)) {
     return false;
   }
@@ -94,11 +113,18 @@ async function verifySignature(data: string, signature: unknown, secret: string)
   }
 
   const key = await importSessionKey(secret, "verify");
-  return await crypto.subtle.verify("HMAC", key, signatureBytes, encoder.encode(data));
+  return await crypto.subtle.verify(
+    "HMAC",
+    key,
+    signatureBytes,
+    encoder.encode(data),
+  );
 }
 
 // Create secure session cookie
-export async function createSecureSession(sessionData: Omit<SecureSession, 'nonce' | 'signature'>): Promise<string> {
+export async function createSecureSession(
+  sessionData: Omit<SecureSession, "nonce" | "signature">,
+): Promise<string> {
   const secret = await getSessionSecret();
   if (!secret) {
     throw new Error(SESSION_SECRET_ERROR);
@@ -108,7 +134,7 @@ export async function createSecureSession(sessionData: Omit<SecureSession, 'nonc
   const sessionWithNonce = { ...sessionData, nonce };
   const dataToSign = JSON.stringify(sessionWithNonce);
   const signature = await generateSignature(dataToSign, secret);
-  
+
   const secureSession: SecureSession = { ...sessionWithNonce, signature };
   // Use TextEncoder to handle Unicode characters safely
   const sessionBytes = encoder.encode(JSON.stringify(secureSession));
@@ -116,7 +142,9 @@ export async function createSecureSession(sessionData: Omit<SecureSession, 'nonc
 }
 
 // Verify and parse secure session
-export async function verifySecureSession(sessionCookie: string): Promise<SecureSession | null> {
+export async function verifySecureSession(
+  sessionCookie: string,
+): Promise<SecureSession | null> {
   try {
     const secret = await getSessionSecret();
     if (!secret) {
@@ -132,23 +160,23 @@ export async function verifySecureSession(sessionCookie: string): Promise<Secure
     }
     const sessionJson = new TextDecoder().decode(uint8Array);
     const session: SecureSession = JSON.parse(sessionJson);
-    
+
     // Check expiration
     if (Date.now() > session.expiresAt) {
       console.log("❌ Session expired");
       return null;
     }
-    
+
     // Verify signature
     const { signature, ...sessionData } = session;
     const dataToVerify = JSON.stringify(sessionData);
     const isValid = await verifySignature(dataToVerify, signature, secret);
-    
+
     if (!isValid) {
       console.log("❌ Invalid session signature");
       return null;
     }
-    
+
     return session;
   } catch (error) {
     console.log("❌ Session parsing error:", error);
@@ -159,20 +187,24 @@ export async function verifySecureSession(sessionCookie: string): Promise<Secure
 // Rate limiting store (in production, use Redis or similar)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
-export function checkRateLimit(identifier: string, maxRequests = 5, windowMs = 60000): boolean {
+export function checkRateLimit(
+  identifier: string,
+  maxRequests = 5,
+  windowMs = 60000,
+): boolean {
   const now = Date.now();
   const key = identifier;
   const current = rateLimitStore.get(key);
-  
+
   if (!current || now > current.resetTime) {
     rateLimitStore.set(key, { count: 1, resetTime: now + windowMs });
     return true;
   }
-  
+
   if (current.count >= maxRequests) {
     return false;
   }
-  
+
   current.count++;
   return true;
 }
@@ -196,26 +228,26 @@ export function validateCSRFToken(token: string): boolean {
 export function validateOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
-  
+
   // Allow requests from same origin
   const allowedOrigins = [
     "http://localhost:8000",
     "http://localhost:8001",
     "http://localhost:3000", // Next.js dev server
     "https://anon.ethos.network", // Production domain
-    "https://ethos-anon-reviews.deno.dev" // Backup deployment domain
+    "https://ethos-anon-reviews.deno.dev", // Backup deployment domain
   ];
-  
+
   if (origin && allowedOrigins.includes(origin)) {
     return true;
   }
-  
+
   if (referer) {
     const refererUrl = new URL(referer);
     const refererOrigin = `${refererUrl.protocol}//${refererUrl.host}`;
     return allowedOrigins.includes(refererOrigin);
   }
-  
+
   return false;
 }
 
@@ -226,7 +258,7 @@ export function validateAndConsumeNonce(nonce: string): boolean {
   if (usedNonces.has(nonce)) {
     return false; // Replay attack detected
   }
-  
+
   usedNonces.add(nonce);
   // Clean up old nonces after 1 hour
   setTimeout(() => usedNonces.delete(nonce), 3600000);
@@ -234,30 +266,36 @@ export function validateAndConsumeNonce(nonce: string): boolean {
 }
 
 // Content validation
-export function validateReviewContent(title: string, description: string): { valid: boolean; error?: string } {
+export function validateReviewContent(
+  title: string,
+  description: string,
+): { valid: boolean; error?: string } {
   // Length limits
   if (title.length > 200) {
     return { valid: false, error: "Title too long (max 200 characters)" };
   }
-  
+
   if (description.length > 2000) {
-    return { valid: false, error: "Description too long (max 2000 characters)" };
+    return {
+      valid: false,
+      error: "Description too long (max 2000 characters)",
+    };
   }
-  
+
   // Basic content filtering (extend as needed)
   const suspiciousPatterns = [
     /<script/i,
     /javascript:/i,
     /on\w+\s*=/i, // Event handlers
-    /data:text\/html/i
+    /data:text\/html/i,
   ];
-  
+
   const content = title + " " + description;
   for (const pattern of suspiciousPatterns) {
     if (pattern.test(content)) {
       return { valid: false, error: "Content contains suspicious patterns" };
     }
   }
-  
+
   return { valid: true };
-} 
+}
