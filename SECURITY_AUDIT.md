@@ -91,6 +91,8 @@ Verified no hardcoded secrets in:
 
 ## ⚠️ Action Required
 
-**The old SESSION_SECRET `a620a54b78d9863a3b32371bc24a1f4529f524721fcf40df7c45b67f32f638e6` is compromised and should not be used in any environment.**
+**The old SESSION_SECRET `[redacted, rotated]` is compromised and should not be used in any environment.**
+
+That value was printed here in full and is still in this repository's git history, so it must be considered compromised: the app refuses to sign or verify sessions with it, and any deployment that ever used it needs a fresh `SESSION_SECRET`.
 
 All users should be logged out and re-authenticate after the new session secret is deployed. 
