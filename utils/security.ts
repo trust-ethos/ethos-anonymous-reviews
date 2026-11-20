@@ -8,6 +8,12 @@ const MIN_SESSION_SECRET_LENGTH = 32;
 // The value this file used to fall back to when SESSION_SECRET was unset.
 // It is public, so it is refused as a key rather than used as one.
 const PLACEHOLDER_SESSION_SECRET = "your-super-secret-key-change-this";
+// The value env.example shipped for SESSION_SECRET. It is public too, and long
+// enough to pass the length check, so a copied env.example must not work.
+const EXAMPLE_SESSION_SECRET =
+  "your_super_secret_session_key_change_this_in_production_use_at_least_32_characters";
+// A long secret is still guessable when it is one character repeated.
+const MIN_SESSION_SECRET_DISTINCT_CHARACTERS = 8;
 // SHA-256 of a SESSION_SECRET that was once printed in this public repository.
 // Only the hash is kept, so the value is refused without being published again.
 // It is a digest, not a secret; it is written in four pieces because a run of
@@ -51,7 +57,10 @@ async function getSessionSecret(): Promise<string | null> {
   if (
     !secret ||
     secret.length < MIN_SESSION_SECRET_LENGTH ||
-    secret === PLACEHOLDER_SESSION_SECRET
+    secret === PLACEHOLDER_SESSION_SECRET ||
+    secret === EXAMPLE_SESSION_SECRET ||
+    secret.trim() === "" ||
+    new Set(secret).size < MIN_SESSION_SECRET_DISTINCT_CHARACTERS
   ) {
     return null;
   }

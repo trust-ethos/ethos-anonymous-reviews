@@ -19,6 +19,9 @@ import {
 } from "../utils/security.ts";
 
 const FALLBACK_LITERAL = "your-super-secret-key-change-this";
+// What env.example used to ship as SESSION_SECRET: public, and 82 characters.
+const ENV_EXAMPLE_SECRET =
+  "your_super_secret_session_key_change_this_in_production_use_at_least_32_characters";
 const SECRET_ERROR = "SESSION_SECRET is not set or is too weak";
 const encoder = new TextEncoder();
 
@@ -147,6 +150,58 @@ Deno.test("createSecureSession throws when SESSION_SECRET is shorter than 32 cha
       );
     });
   }
+});
+
+Deno.test("the env.example secret is refused when it is set as SESSION_SECRET", async () => {
+  assert(ENV_EXAMPLE_SECRET.length >= 32, "long enough to pass on length");
+  const forged = await forgeSession(ENV_EXAMPLE_SECRET);
+
+  await withSessionSecret(ENV_EXAMPLE_SECRET, async () => {
+    const logged = await captureErrors(async () => {
+      assertEquals(await verifySecureSession(forged), null);
+    });
+    assertEquals(logged.length, 1);
+    assert(logged[0].includes(SECRET_ERROR));
+    await assertRejects(
+      () => createSecureSession(sessionData()),
+      Error,
+      SECRET_ERROR,
+    );
+  });
+});
+
+Deno.test("a long secret of one repeated character or only whitespace is refused", async () => {
+  const weak = [
+    "x".repeat(48),
+    " ".repeat(40),
+    // Seven distinct characters, one short of the eight a secret needs.
+    "abcdefg".repeat(7),
+    // Whitespace only, though eight distinct characters of it.
+    " \t\n\r\v\f\u00a0\u2003".repeat(5),
+  ];
+  for (const secret of weak) {
+    assert(secret.length >= 32, "long enough to pass on length");
+    const forged = await forgeSession(secret);
+
+    await withSessionSecret(secret, async () => {
+      const logged = await captureErrors(async () => {
+        assertEquals(await verifySecureSession(forged), null);
+      });
+      assertEquals(logged.length, 1);
+      await assertRejects(
+        () => createSecureSession(sessionData()),
+        Error,
+        SECRET_ERROR,
+      );
+    });
+  }
+});
+
+Deno.test("a long secret with eight distinct characters is accepted", async () => {
+  await withSessionSecret("abcdefgh".repeat(6), async () => {
+    const cookie = await createSecureSession(sessionData());
+    assert(await verifySecureSession(cookie), "the session verifies");
+  });
 });
 
 Deno.test("with a good 48-character secret a session round-trips", async () => {
