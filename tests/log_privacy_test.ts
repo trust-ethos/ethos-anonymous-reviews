@@ -41,6 +41,7 @@ import src26 from "../utils/privacy.ts" with { type: "text" };
 import src27 from "../utils/security.ts" with { type: "text" };
 import src28 from "../utils/reputation.ts" with { type: "text" };
 import src29 from "../static/ds/tokens/ethos.tokens.ts" with { type: "text" };
+import src30 from "../routes/_middleware.ts" with { type: "text" };
 
 /** Source text by repo-relative path. Add a line here for every new file. */
 const SOURCES: Record<string, string> = {
@@ -52,6 +53,7 @@ const SOURCES: Record<string, string> = {
   "islands/ReviewForm.tsx": src6,
   "routes/_404.tsx": src7,
   "routes/_app.tsx": src8,
+  "routes/_middleware.ts": src30,
   "routes/api/auth/csrf.ts": src9,
   "routes/api/auth/me.ts": src10,
   "routes/api/auth/reputation.ts": src11,

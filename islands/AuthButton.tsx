@@ -10,7 +10,6 @@ interface TwitterUser {
 
 interface TwitterSession {
   user: TwitterUser;
-  accessToken: string;
   expiresAt: number;
 }
 

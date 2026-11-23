@@ -63,7 +63,6 @@ async function captureErrors(fn: () => Promise<unknown>): Promise<string[]> {
 function sessionData(): Omit<SecureSession, "nonce" | "signature"> {
   return {
     user: { id: "1234567890", name: "Tëst Üser", username: "test_user" },
-    accessToken: "test-access-token",
     expiresAt: Date.now() + 60_000,
   };
 }
@@ -215,7 +214,6 @@ Deno.test("with a good 48-character secret a session round-trips", async () => {
 
     assert(session, "the session verifies");
     assertEquals(session.user, data.user);
-    assertEquals(session.accessToken, data.accessToken);
     assertEquals(session.expiresAt, data.expiresAt);
 
     // The forging helper above signs the same way the app does, so the

@@ -9,7 +9,6 @@ interface TwitterSession {
     username: string;
     profileImageUrl?: string;
   };
-  accessToken: string;
   expiresAt: number;
 }
 
