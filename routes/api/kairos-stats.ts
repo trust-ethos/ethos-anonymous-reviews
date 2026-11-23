@@ -33,6 +33,10 @@ interface EthosUserStats {
   };
 }
 
+// Served from static/ so the page never sends a visitor to a third party.
+// The Ethos API's avatarUrl is a pbs.twimg.com URL too, so it is not used.
+const KAIROS_AVATAR_URL = "/kairos-avatar.jpg";
+
 // Fallback data for KairosAgent
 const KAIROS_FALLBACK_STATS = {
   displayName: "KairosAgent",
@@ -44,7 +48,7 @@ const KAIROS_FALLBACK_STATS = {
   attestationCount: 8,
   vouchAmountEth: "2.5", // Vouch amount in ETH
   profileUrl: "https://app.ethos.network/profile/x/kairosagent",
-  avatarUrl: "https://pbs.twimg.com/profile_images/1934487333446832128/xN50ioZ4.jpg"
+  avatarUrl: KAIROS_AVATAR_URL
 };
 
 export const handler: Handlers = {
@@ -129,7 +133,7 @@ export const handler: Handlers = {
         attestationCount: 0, // Not available in current API response
         vouchAmountEth: vouchAmountEth,
         profileUrl: `https://app.ethos.network/profile/x/${userProfile.username}`,
-        avatarUrl: userProfile.avatarUrl || "https://pbs.twimg.com/profile_images/1934487333446832128/xN50ioZ4.jpg"
+        avatarUrl: KAIROS_AVATAR_URL
       };
 
       return new Response(JSON.stringify(stats), {
