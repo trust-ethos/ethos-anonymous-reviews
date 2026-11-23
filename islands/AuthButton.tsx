@@ -48,7 +48,7 @@ export default function AuthButton() {
 
   if (isLoading.value) {
     return (
-      <button class="px-4 py-2 bg-neutral-700 text-neutral-300 rounded-md">
+      <button class="e-btn">
         Loading...
       </button>
     );
@@ -57,26 +57,26 @@ export default function AuthButton() {
   // Show user info if authenticated
   if (user.value) {
     return (
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2">
-          {user.value.profileImageUrl ? (
-            <img 
-              src={user.value.profileImageUrl} 
-              alt={user.value.name}
-              class="w-8 h-8 rounded-full"
-            />
-          ) : (
-            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
-              {user.value.username.charAt(0).toUpperCase()}
-            </div>
-          )}
-          <div class="text-sm">
-            <div class="font-medium">@{user.value.username}</div>
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="flex items-center gap-2 min-w-0">
+          {/* The avatar is as tall as the button beside it, so the top bar keeps its height. */}
+          <div class="e-avatar" style="--av: var(--ethos-size-control-md)">
+            {user.value.profileImageUrl ? (
+              <img 
+                src={user.value.profileImageUrl} 
+                alt={user.value.name}
+              />
+            ) : (
+              <div class="ph e-text md">
+                {user.value.username.charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
+          <div class="e-text md sans truncate">@{user.value.username}</div>
         </div>
         <button
           onClick={handleLogout}
-          class="px-3 py-1 text-sm bg-neutral-700 text-neutral-300 rounded hover:bg-neutral-600 transition-colors"
+          class="e-btn"
         >
           Logout
         </button>
@@ -87,11 +87,9 @@ export default function AuthButton() {
   return (
     <button
       onClick={handleLogin}
-      class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+      class="e-btn primary"
     >
-      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-      </svg>
+      <span class="ei ei-twitter-x" aria-hidden="true"></span>
       Connect with X
     </button>
   );
