@@ -48,17 +48,18 @@ DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOO
 
 ### Step 3: Test Configuration
 
-You can test your Discord webhook setup using the test endpoint:
+The app has no test endpoint: anyone could call one and post to your channel.
+Test the webhook itself from your own machine instead:
 
 ```bash
-# Test the webhook
-curl -X POST http://localhost:8000/api/discord/test
+# Posts one plain message to the channel
+curl -H "Content-Type: application/json" \
+  -d '{"content": "Webhook test"}' \
+  "$DISCORD_WEBHOOK_URL"
 ```
 
-Or for production:
-```bash
-curl -X POST https://your-domain.com/api/discord/test
-```
+Discord answers `204 No Content` and the message appears in the channel. The
+first real review then shows the full embed.
 
 ## 📋 Configuration Options
 
@@ -126,7 +127,7 @@ The Discord notifications are designed to maintain anonymity:
 
 1. **Check webhook URL**: Make sure it's correctly copied from Discord
 2. **Verify permissions**: Ensure the webhook has permission to post in the channel
-3. **Test the endpoint**: Use the `/api/discord/test` endpoint
+3. **Test the webhook**: Post to it directly (see Step 3 above)
 4. **Check logs**: Look for Discord-related errors in your application logs
 
 ### Environment Variables Not Loading?
@@ -134,22 +135,6 @@ The Discord notifications are designed to maintain anonymity:
 1. **Restart the application** after adding environment variables
 2. **Check .env file** is in the root directory
 3. **Verify syntax** - no spaces around the `=` sign
-
-### Testing Commands
-
-```bash
-# Test locally
-curl -X POST http://localhost:8000/api/discord/test
-
-# Test production
-curl -X POST https://your-domain.com/api/discord/test
-
-# Expected success response:
-{
-  "success": true,
-  "message": "Discord webhook test successful! Check your Discord channel for the test message."
-}
-```
 
 ## 📈 Production Deployment
 
