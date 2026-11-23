@@ -32,7 +32,6 @@ export interface SecureSession {
     username: string;
     profileImageUrl?: string;
   };
-  accessToken: string;
   expiresAt: number;
   nonce: string; // Prevent replay attacks
   signature: string; // Cryptographic signature

@@ -14,13 +14,13 @@ export const handler: Handlers = {
     // Generate a random state parameter for security
     const state = crypto.randomUUID();
     
-    // Determine if we're in production (HTTPS) or development (HTTP)
     console.log("🔍 URL details:", { hostname: url.hostname, protocol: url.protocol, href: url.href });
-    // Force development mode for now to fix cookie issues
-    const isProduction = false;
-    const cookieFlags = isProduction ? "HttpOnly; Secure; SameSite=Lax" : "HttpOnly; SameSite=Lax";
+    // Secure whenever the request came over HTTPS, so the browser never sends
+    // the cookie in the clear; local development on http:// still works.
+    const isHttps = url.protocol === "https:";
+    const cookieFlags = isHttps ? "HttpOnly; Secure; SameSite=Lax" : "HttpOnly; SameSite=Lax";
     
-    console.log("🍪 Setting state cookie...", { hasState: !!state, isProduction, cookieFlags });
+    console.log("🍪 Setting state cookie...", { hasState: !!state, isHttps, cookieFlags });
     
     // Store state in a cookie for verification later
     const response = new Response(null, {

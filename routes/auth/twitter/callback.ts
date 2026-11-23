@@ -86,7 +86,8 @@ export const handler: Handlers = {
       
       console.log("✅ User data received:", { hasId: !!user?.id, hasUsername: !!user?.username });
 
-      // Create secure session cookie with user data
+      // Create secure session cookie with user data. The X access token is used
+      // above and then dropped: nothing reads it later, so it is not stored.
       const sessionData = {
         user: {
           id: user.id,
@@ -94,7 +95,6 @@ export const handler: Handlers = {
           username: user.username,
           profileImageUrl: user.profile_image_url,
         },
-        accessToken: tokenData.access_token,
         expiresAt: Date.now() + (tokenData.expires_in * 1000),
       };
 
@@ -113,13 +113,13 @@ export const handler: Handlers = {
         });
       }
 
-      // Determine if we're in production (HTTPS) or development (HTTP)
       console.log("🔍 URL details:", { hostname: url.hostname, protocol: url.protocol });
-      // Force development mode for now to fix cookie issues
-      const isProduction = false;
-      const cookieFlags = isProduction ? "HttpOnly; Secure; SameSite=Lax" : "HttpOnly; SameSite=Lax";
+      // Secure whenever the request came over HTTPS, so the browser never sends
+      // the session in the clear; local development on http:// still works.
+      const isHttps = url.protocol === "https:";
+      const cookieFlags = isHttps ? "HttpOnly; Secure; SameSite=Lax" : "HttpOnly; SameSite=Lax";
 
-      console.log("🍪 Setting secure session cookie...", { isProduction, cookieFlags });
+      console.log("🍪 Setting secure session cookie...", { isHttps, cookieFlags });
 
       const sessionCookie = `twitter_session=${secureSessionData}; Path=/; ${cookieFlags}; Max-Age=${tokenData.expires_in}`;
       const clearStateCookie = `twitter_oauth_state=; Path=/; ${cookieFlags}; Max-Age=0`;
